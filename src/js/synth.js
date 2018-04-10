@@ -33,7 +33,75 @@ template.innerHTML =
       </div>
       </div>
     <div>
+
     <style>
+      .synth {
+        width: 660px;
+        height: 110px;
+        white-space: nowrap;
+        margin: 10px;
+      }
+      .keyboard {
+        width: auto;
+        padding: 10px;
+        margin: 20px;
+      }
+      
+      .key {
+        cursor: pointer;
+        font: 16px "Open Sans", "Lucida Grande", "Arial", sans-serif;
+        border: 1px solid black;
+        border-radius: 5px;
+        width: 20px;
+        height: 80px;
+        padding: 10px;
+        text-align: center;
+        box-shadow: 2px 2px darkgray;
+        display: inline-block;
+        position: relative;
+        margin-right: 3px;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+      
+      .key div {
+        position: flexible;
+        bottom: 0;
+        text-align: center;
+        width: 100%;
+        pointer-events: none;
+      }
+      
+      .key div sub {
+        font-size: 10px;
+        pointer-events: none;
+      }
+      
+      .key:hover {
+        background-color: #eef;
+      }
+      
+      .key:active {
+        background-color: #000;
+        color: #fff;
+      }
+      
+      .octave {
+        display: inline-block;
+        padding: 0 6px 0 0;
+      }
+      
+      .settingsBar {
+        padding: 20px;
+        font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
+        position: flexible;
+        vertical-align: middle;
+        width: 100%;
+        height: 30px;
+      }
+  
     </style>
 </div>
 `
@@ -105,7 +173,7 @@ class Synth extends window.HTMLElement {
    * @memberof Synth
    */
   inputListen () {
-    this._volumeControl.addEventListener("change", this.changeVolume(), false)
+    
   }
   
       /**
@@ -118,27 +186,45 @@ class Synth extends window.HTMLElement {
     for (let i=0; i< 9; i++) {
       noteFreq[i] = [];
     }
-    noteFreq[1]["C"] = 32.703195662574829
-    noteFreq[1]["C#"] = 34.647828872109012
-    noteFreq[1]["D"] = 36.708095989675945
-    noteFreq[1]["D#"] = 38.890872965260113
-    noteFreq[1]["E"] = 41.203444614108741
-    noteFreq[1]["F"] = 43.653528929125485
-    noteFreq[1]["F#"] = 46.249302838954299
-    noteFreq[1]["G"] = 48.999429497718661
-    noteFreq[1]["G#"] = 51.913087197493142
-    noteFreq[1]["A"] = 55.000000000000000
-    noteFreq[1]["A#"] = 58.270470189761239
-    noteFreq[1]["B"] = 61.735412657015513
+    
+  noteFreq[2]["C"] = 65.406391325149658;
+  noteFreq[2]["C#"] = 69.295657744218024;
+  noteFreq[2]["D"] = 73.416191979351890;
+  noteFreq[2]["D#"] = 77.781745930520227;
+  noteFreq[2]["E"] = 82.406889228217482;
+  noteFreq[2]["F"] = 87.307057858250971;
+  noteFreq[2]["F#"] = 92.498605677908599;
+  noteFreq[2]["G"] = 97.998858995437323;
+  noteFreq[2]["G#"] = 103.826174394986284;
+  noteFreq[2]["A"] = 110.000000000000000;
+  noteFreq[2]["A#"] = 116.540940379522479;
+  noteFreq[2]["B"] = 123.470825314031027;
+
+  noteFreq[3]["C"] = 130.812782650299317;
+  noteFreq[3]["C#"] = 138.591315488436048;
+  noteFreq[3]["D"] = 146.832383958703780;
+  noteFreq[3]["D#"] = 155.563491861040455;
+  noteFreq[3]["E"] = 164.813778456434964;
+  noteFreq[3]["F"] = 174.614115716501942;
+  noteFreq[3]["F#"] = 184.997211355817199;
+  noteFreq[3]["G"] = 195.997717990874647;
+  noteFreq[3]["G#"] = 207.652348789972569;
+  noteFreq[3]["A"] = 220.000000000000000;
+  noteFreq[3]["A#"] = 233.081880759044958;
+  noteFreq[3]["B"] = 246.941650628062055;
+
     return noteFreq
   }
 
   setup(){
     this._noteFreq = this.createNoteTable()
-
     this._masterGainNode = this._audioContext.createGain()
     this._masterGainNode.connect(this._audioContext.destination)
     this._masterGainNode.gain.value = this._volumeControl.value
+
+    this._volumeControl.addEventListener("change", ()=>{
+      this.changeVolume()
+    }, false);
 
     this._noteFreq.forEach((keys, idx) => {
       let keyList = Object.entries(keys)
@@ -161,6 +247,7 @@ class Synth extends window.HTMLElement {
   }
 
   changeVolume(){
+    this._masterGainNode.gain.value = this._volumeControl.value
   }
 
   createKey(note, octave, freq){
@@ -175,13 +262,16 @@ class Synth extends window.HTMLElement {
     keyElement.appendChild(labelElement)
   
     keyElement.addEventListener("mousedown", event =>{
-      this.notePressed(event)  
+      this.notePressed(keyElement)  
     }, false)
     keyElement.addEventListener("mouseup", event =>{
-      this.noteReleased(event) 
+      this.noteReleased(keyElement) 
+    }, false)
+    keyElement.addEventListener("mouseover", event =>{
+      this.noteReleased(keyElement) 
     }, false)
     keyElement.addEventListener("mouseleave", event =>{
-      this.noteReleased(event) 
+      this.noteReleased(keyElement) 
     }, false)
   
     return keyElement
@@ -205,19 +295,16 @@ class Synth extends window.HTMLElement {
     return osc
   }
 
-  notePressed(event) {
-    if (event.buttons === 1) {
-      let dataset = event.target.dataset
-      console.log(dataset["pressed"])
-      if (!dataset["pressed"]) {
-        this._oscList[dataset["octave"][dataset["note"]]] = this.playTone(dataset["frequency"])
-        dataset["pressed"] = "yes"
-      }
+  notePressed(keyElement) {
+    let dataset = keyElement.dataset
+    if (!dataset["pressed"]) {
+      this._oscList[dataset["octave"][dataset["note"]]] = this.playTone(dataset["frequency"])
+      dataset["pressed"] = "yes"
     }
   }
 
-  noteReleased(event) {
-    let dataset = event.target.dataset
+  noteReleased(keyElement) {
+    let dataset = keyElement.dataset
     if (dataset && dataset["pressed"]) {
       this._oscList[dataset["octave"][dataset["note"]]].stop()
       this._oscList[dataset["octave"][dataset["note"]]] = null
