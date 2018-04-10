@@ -6,6 +6,8 @@
  * @version 1.0
  */
 
+ 'use strict'
+
 const template = document.createElement('template')
 template.innerHTML =
 `<div class="synth">
@@ -53,10 +55,10 @@ class Synth extends window.HTMLElement {
     this.attachShadow({mode: 'open'})
     this.shadowRoot.appendChild(template.content.cloneNode(true))
     this._synth = this.shadowRoot.querySelector('.synth')
-    this._keyboard = document.querySelector(".keyboard")
-    this._wavePicker = document.querySelector("select[name='waveform']")
-    this._volumeControl = document.querySelector("input[name='volume']")
-    this._audioContext = new (window.AudioContext || window.webkitAudioContext);
+    this._keyboard = this.shadowRoot.querySelector(".keyboard")
+    this._wavePicker = this.shadowRoot.querySelector("select[name='waveform']")
+    this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
+    this._audioContext = new (window.AudioContext || window.webkitAudioContext)
     this._oscList = []
     this._masterGainNode = null
     this._noteFreq = null
@@ -73,7 +75,7 @@ class Synth extends window.HTMLElement {
    * @memberof Synth
    */
   static get observedAttributes () {
-    return 
+    return
   }
 
   /**
@@ -93,7 +95,8 @@ class Synth extends window.HTMLElement {
    * @memberof Synth
    */
   connectedCallback () {
-  
+    this.inputListen()
+    this.setup()
   }
 
      /**
@@ -102,7 +105,7 @@ class Synth extends window.HTMLElement {
    * @memberof Synth
    */
   inputListen () {
-    
+    this._volumeControl.addEventListener("change", this.changeVolume(), false)
   }
   
       /**
@@ -129,8 +132,100 @@ class Synth extends window.HTMLElement {
     noteFreq[1]["B"] = 61.735412657015513
     return noteFreq
   }
+
+  setup(){
+    this._noteFreq = this.createNoteTable()
+
+    this._masterGainNode = this._audioContext.createGain()
+    this._masterGainNode.connect(this._audioContext.destination)
+    this._masterGainNode.gain.value = this._volumeControl.value
+
+    this._noteFreq.forEach((keys, idx) => {
+      let keyList = Object.entries(keys)
+      let octaveElem = document.createElement("div")
+      octaveElem.className = "octave"
+      
+      keyList.forEach((key)=> {
+          octaveElem.appendChild(this.createKey(key[0], idx, key[1]))
+      });
+      this._keyboard.appendChild(octaveElem)
+    });
+    
+    this._sineTerms = new Float32Array([0, 0, 1, 0, 1]);
+    this._cosineTerms = new Float32Array(this._sineTerms.length);
+    this._customWaveform = this._audioContext.createPeriodicWave(this._cosineTerms, this._sineTerms)
+
+    for (let i = 0; i < 9; i++) {
+      this._oscList[i] = []
+    } 
+  }
+
+  changeVolume(){
+  }
+
+  createKey(note, octave, freq){
+    let keyElement = document.createElement("div")
+    let labelElement = document.createElement("div")
+   
+    keyElement.className = "key"
+    keyElement.dataset["octave"] = octave
+    keyElement.dataset["note"] = note
+    keyElement.dataset["frequency"] = freq
+    labelElement.innerHTML = note + "<sub>" + octave + "</sub>"
+    keyElement.appendChild(labelElement)
   
+    keyElement.addEventListener("mousedown", event =>{
+      this.notePressed(event)  
+    }, false)
+    keyElement.addEventListener("mouseup", event =>{
+      this.noteReleased(event) 
+    }, false)
+    keyElement.addEventListener("mouseleave", event =>{
+      this.noteReleased(event) 
+    }, false)
+  
+    return keyElement
+  }
+
+  playTone(freq) {
+    let osc = this._audioContext.createOscillator()
+    osc.connect(this._masterGainNode)
+   
+    let type = this._wavePicker.options[this._wavePicker.selectedIndex].value
+   
+    if (type == "custom") {
+      osc.setPeriodicWave(this._customWaveform)
+    } else {
+      osc.type = type
+    }
+  
+    osc.frequency.value = freq
+    osc.start()
+   
+    return osc
+  }
+
+  notePressed(event) {
+    if (event.buttons === 1) {
+      let dataset = event.target.dataset
+      console.log(dataset["pressed"])
+      if (!dataset["pressed"]) {
+        this._oscList[dataset["octave"][dataset["note"]]] = this.playTone(dataset["frequency"])
+        dataset["pressed"] = "yes"
+      }
+    }
+  }
+
+  noteReleased(event) {
+    let dataset = event.target.dataset
+    if (dataset && dataset["pressed"]) {
+      this._oscList[dataset["octave"][dataset["note"]]].stop()
+      this._oscList[dataset["octave"][dataset["note"]]] = null
+      delete dataset["pressed"]
+    }
+  }
 }
+
   
 window.customElements.define('synth-element', Synth)
 
