@@ -32,13 +32,12 @@
           <span>Current octave: </span>
           <select name="octave">
             <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
             <option value="4">4</option>
             <option value="5">5</option>
-            <option value="6" selected>6</option>
+            <option value="6">6</option>
             <option value="7">7</option>
-            <option value="8">8</option>
           </select>
         </div>
       </div>
@@ -51,11 +50,14 @@
         height: 110px;
         white-space: nowrap;
         margin: 10px;
+        margin-left: 275px;
+    
       }
       .keyboard {
         width: auto;
         padding: 10px;
         margin: 20px;
+       
       }
       
       .key {
@@ -90,14 +92,16 @@
         pointer-events: none;
       }
       
-      .key:hover {
-        background-color: #eef;
-      }
-      
       .key:active {
-        background-color: #000;
+        background-color: #599;
         color: #fff;
       }
+
+      .sharpKey:active {
+        background-color: #599;
+        color: #fff;
+      }
+
       
       .octave {
         display: inline-block;
@@ -105,6 +109,7 @@
       }
       
       .settingsBar {
+        margin-bottom: 20px;
         padding: 20px;
         font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
         position: flexible;
@@ -132,7 +137,7 @@
         -ms-user-select: none;
         background-color: black;
         color: white;
-        margin-bottom: -60px;
+        margin-left: 15px;
       }
   
     </style>
@@ -220,7 +225,25 @@
       this.createKeyboard()
       
     }, false)
+    
 
+    window.addEventListener('keydown', event =>{
+      if(event.repeat === false){
+        let key = this._keyboard.querySelector(`#key${event.key}`)
+        this.notePressed(key)
+        key.style.backgroundColor = "#599"
+      }
+    })
+
+    window.addEventListener('keyup', event =>{
+        let key = this._keyboard.querySelector(`#key${event.key}`)
+        this.noteReleased(key)
+        key.style.backgroundColor = "white"
+
+        if(key.getAttribute('class') === "sharpKey"){
+          key.style.backgroundColor = "black"
+        }
+    }, false)
    }
 
       /**
@@ -258,15 +281,29 @@
    }
 
    createKeyboard(){
-    this._noteFreq.forEach((keys, idx) => {
+    let keyIndex = 0
+
+    this._noteFreq.forEach((keys, i1) => {
       let keyList = Object.entries(keys)
+      let whiteKeys = document.createElement('div')
+      let blackKeys = document.createElement('div')
       let octaveElem = document.createElement('div')
       octaveElem.className = 'octave'
 
-      keyList.forEach((key) => {
-        octaveElem.appendChild(this.createKey(key[0], idx, key[1]))
+      keyList.forEach((key, i2) => {
+        if(key[0].length > 1){
+          blackKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
+        }else{
+          whiteKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
+        }
+
+        keyIndex ++
       })
+  
+      octaveElem.appendChild(blackKeys)
+      octaveElem.appendChild(whiteKeys)
       this._keyboard.appendChild(octaveElem)
+      
     })
 
    }
@@ -296,11 +333,15 @@
      this._masterGainNode.gain.value = this._volumeControl.value
    }
 
-   createKey (note, octave, freq) {
+   createKey (note, octave, freq, keyIndex) {
+     
      let keyElement = document.createElement('div')
      let labelElement = document.createElement('div')
+     let triggerKeys = ['Tab','1','q','2','w','e','4','r','5','t','6','y','u','8','i','9','o','p','+','å','´','¨', '\u27f5','\u21b5']
+
 
      keyElement.className = 'key'
+     keyElement.id = `key${triggerKeys[keyIndex]}`
      keyElement.dataset['octave'] = octave
      keyElement.dataset['note'] = note
      keyElement.dataset['frequency'] = freq
@@ -309,8 +350,7 @@
        keyElement.setAttribute('class', 'sharpKey')
      }
 
-
-     labelElement.innerHTML = note + '<sub>' + octave + '</sub>'
+     labelElement.innerHTML = triggerKeys[keyIndex]
      
      keyElement.appendChild(labelElement)
 
@@ -353,15 +393,18 @@
      if (!dataset['pressed']) {
        this._oscList[dataset['octave'][dataset['note']]] = this.playTone(dataset['frequency'])
        dataset['pressed'] = 'yes'
+
      }
    }
 
    noteReleased (keyElement) {
      let dataset = keyElement.dataset
+     
      if (dataset && dataset['pressed']) {
        this._oscList[dataset['octave'][dataset['note']]].stop()
        this._oscList[dataset['octave'][dataset['note']]] = null
        delete dataset['pressed']
+       
      }
    }
 }
