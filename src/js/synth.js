@@ -123,7 +123,7 @@
         font: 10px "Open Sans", "Lucida Grande", "Arial", sans-serif;
         border: 1px solid black;
         border-radius: 5px;
-        width: 20px;
+        width: 10px;
         height: 80px;
         padding: 10px;
         text-align: center;
@@ -137,7 +137,7 @@
         -ms-user-select: none;
         background-color: black;
         color: white;
-        margin-left: 15px;
+        margin-left: 20px;
       }
   
     </style>
@@ -166,7 +166,7 @@
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
      this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
-     this._oscList = []
+     this._oscList = {}
      this._masterGainNode = null
      this._noteFreq = null
      this._customWaveform = null
@@ -228,21 +228,23 @@
     
 
     window.addEventListener('keydown', event =>{
+      event.preventDefault()
       if(event.repeat === false){
         let key = this._keyboard.querySelector(`#key${event.key}`)
-        this.notePressed(key)
+        this.notePressed(key, event.key)
         key.style.backgroundColor = "#599"
       }
     })
 
     window.addEventListener('keyup', event =>{
         let key = this._keyboard.querySelector(`#key${event.key}`)
-        this.noteReleased(key)
+        this.noteReleased(key, event.key)
         key.style.backgroundColor = "white"
 
         if(key.getAttribute('class') === "sharpKey"){
           key.style.backgroundColor = "black"
         }
+        
     }, false)
    }
 
@@ -323,10 +325,6 @@
      this._sineTerms = new Float32Array([0, 0, 1, 0, 1])
      this._cosineTerms = new Float32Array(this._sineTerms.length)
      this._customWaveform = this._audioContext.createPeriodicWave(this._cosineTerms, this._sineTerms)
-
-     for (let i = 0; i < 9; i++) {
-       this._oscList[i] = []
-     }
    }
 
    changeVolume () {
@@ -388,23 +386,22 @@
      return osc
    }
 
-   notePressed (keyElement) {
+   notePressed (keyElement, key) {
      let dataset = keyElement.dataset
      if (!dataset['pressed']) {
-       this._oscList[dataset['octave'][dataset['note']]] = this.playTone(dataset['frequency'])
+       this._oscList[key] = this.playTone(dataset['frequency'])
        dataset['pressed'] = 'yes'
-
      }
    }
 
-   noteReleased (keyElement) {
+   noteReleased (keyElement, key) { 
      let dataset = keyElement.dataset
      
      if (dataset && dataset['pressed']) {
-       this._oscList[dataset['octave'][dataset['note']]].stop()
-       this._oscList[dataset['octave'][dataset['note']]] = null
+       console.log(this._oscList)
+       this._oscList[key].stop()
+       delete this._oscList[key]
        delete dataset['pressed']
-       
      }
    }
 }
