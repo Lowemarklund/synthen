@@ -400,7 +400,7 @@
      if (dataset && dataset['pressed']) {
        console.log(this._oscList)
        this._oscList[key].stop()
-       delete this._oscList[key]
+       delete this._oscList[key] //kommer ej funka med sequencern
        delete dataset['pressed']
      }
    }
