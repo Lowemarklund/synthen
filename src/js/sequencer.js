@@ -6,11 +6,11 @@
  * @version 1.2
  */
 
+const Synth = require('./synth')
 const template = document.createElement('template')
 template.innerHTML =
 `<div class="sequencer">
     <div class="logs">
-        <h4 class="instrumentLog">Drum Machine</h4>
         <div class="bpmLog">BPM: 150</div>
         <div class="loopLengthLog">Length: 16 </div>
     </div>
@@ -24,9 +24,8 @@ template.innerHTML =
     <button class="clearButton">Clear Grid</button>
     <style>
         .sequencer {
-            margin-left: 50px;
+            margin-left: 30px;
             margin-right: 20px;
-            margin-bottom: 20px;
             width: 500;
             font-family: avenir;
             text-align: center;
@@ -173,7 +172,18 @@ class Sequencer extends window.HTMLElement {
       '/image/clap.png',
       '/image/cowbell.png'
     ]
+    this._trackInstrument = {
+        1: 'kicks',
+        2: 'snares',
+        3: 'hi-hats',
+        4: 'toms',
+        5: 'cymbals',
+        6: 'percussion',
+        7: 'claps',
+        8: 'cowbells'
+    }
     this._hasFocus = false
+    this._synth = new Synth()
   }
   /**
    * Watches attributes for changes on the element.
@@ -238,13 +248,17 @@ class Sequencer extends window.HTMLElement {
   inputListen () {
     this._sequencer.addEventListener('mousedown', event => {
       // activates/deactivates cell
-      if (event.target.getAttribute('class') === 'cell') {
+      if (event.target.getAttribute('class') === 'cell' && event.shiftKey === false) {
         if (event.target.getAttribute('active') === 'false') {
           this.cellActivate(event.target)
         } else {
           this.cellDeactivate(event.target)
         }
       }
+      if(event.target.getAttribute('class') === 'cell' && event.target.getAttribute('active') === 'true' && event.shiftKey === true){
+        event.target.innerText = 'C'
+      }   
+
       // pauses and plays the sequencer(s)
       if (event.target.getAttribute('class') === 'pausePlayButton') {
         if (event.target.getAttribute('type') === 'play') {
@@ -262,20 +276,26 @@ class Sequencer extends window.HTMLElement {
       if (event.target.getAttribute('class') === 'instrumentIcon') {
         // changes drumtype
         let currentInstrument = Number(event.target.getAttribute('type'))
-        let drumTypes = ['kicks', 'snares', 'hihats', 'toms', 'cymbals', 'percussion', 'claps', 'cowbells']
+        let drumTypes = ['kicks', 'snares', 'hihats', 'toms', 'cymbals', 'percussion', 'claps', 'cowbells', 'synths']
+        let nextIcon
 
-        if (Number(event.target.getAttribute('type')) + 1 > 7) {
-          let nextIcon = 0
+        if (Number(event.target.getAttribute('type')) + 1 > 8) {
+          nextIcon = 0
           event.target.setAttribute('src', this._drumImages[nextIcon])
           event.target.setAttribute('type', [`${nextIcon}`])
           event.target.nextSibling.innerText = '1'
           this._trackSamples[event.target.nextSibling.nextSibling.getAttribute('row')].src = `/audio/drums/${drumTypes[0]}/1.wav`
-        } else {
-          let nextIcon = Number(event.target.getAttribute('type')) + 1
+          this._trackInstrument[event.target.nextSibling.nextSibling.getAttribute('row')] = drumTypes[nextIcon]
+        }
+        
+        else {
+          nextIcon = Number(event.target.getAttribute('type')) + 1
           event.target.setAttribute('src', this._drumImages[nextIcon])
           event.target.setAttribute('type', [`${nextIcon}`])
           event.target.nextSibling.innerText = '1'
           this._trackSamples[event.target.nextSibling.nextSibling.getAttribute('row')].src = `/audio/drums/${drumTypes[currentInstrument + 1]}/1.wav`
+          this._trackInstrument[event.target.nextSibling.nextSibling.getAttribute('row')] = drumTypes[nextIcon]
+          console.log(this._trackInstrument[event.target.nextSibling.nextSibling.getAttribute('row')])
         }
       }
       if (event.target.getAttribute('class') === 'instrumentNumber') {
@@ -291,6 +311,7 @@ class Sequencer extends window.HTMLElement {
           this._trackSamples[event.target.nextSibling.getAttribute('row')].src = `/audio/drums/${Object.keys(instrumentTypeSampleAmount)[currentInstrument]}/${nextSample}.wav`
         }
       }
+
       // clears the grid
       if (event.target.getAttribute('class') === 'clearButton') {
         this.clearGrid()
@@ -480,9 +501,13 @@ class Sequencer extends window.HTMLElement {
    * @return {function} - An interval creating each beat of the sequencer
    * @memberof Sequencer
    */
-  playGrid (beat = this.getAttribute('currentbeat'), tempo = this._tempo) {
+playGrid (beat = this.getAttribute('currentbeat'), tempo = this._tempo) {
     let column = Number(beat)
     let cells = this._grid.querySelectorAll('.cell')
+    
+    let key = this._synth.createKey('C#', 3, 103.94348661632702, 1)
+    
+   
 
     let click = setInterval(() => {
       for (let i = 0; i < cells.length; i += 1) {
@@ -494,6 +519,10 @@ class Sequencer extends window.HTMLElement {
             cells[i - 1].style.backgroundColor = 'white'
           }
           if (cells[i].getAttribute('active') === 'true') {
+            if(this._trackInstrument[cells[i].getAttribute('row')] === 'synths'){
+                this._synth.notePressed(key, '1')
+            }
+        
             this._trackSamples[cells[i].getAttribute('row')].pause()
             this._trackSamples[cells[i].getAttribute('row')].currentTime = 0
             let playPromise = this._trackSamples[cells[i].getAttribute('row')].play()

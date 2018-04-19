@@ -21,6 +21,13 @@
             <option value="0.0" label="Mute">
             <option value="1.0" label="100%">
           </datalist>
+          <span>NoteLength: </span>
+          <input type="range" min="0" max="1000" step="10"
+              value="100" list="noteLengths" name="noteLength">
+          <datalist id="volumes">
+            <option value="0.0" label="Mute">
+            <option value="1.0" label="100%">
+          </datalist>
         <div class="right">
           <span>Current waveform: </span>
           <select name="waveform">
@@ -46,11 +53,10 @@
 
     <style>
       .synth {
-        width: 660px;
+        width: 500px;
         height: 110px;
         white-space: nowrap;
-        margin: 10px;
-        margin-left: 275px;
+        margin-left: 10px;
     
       }
       .keyboard {
@@ -117,6 +123,13 @@
         width: 100%;
         height: 30px;
       }
+      .right {
+        margin: 10px;
+      }
+
+      .left{
+        
+      }
 
       .sharpKey {
         cursor: pointer;
@@ -165,13 +178,16 @@
      this._wavePicker = this.shadowRoot.querySelector("select[name='waveform']")
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
+     this._noteLengthControl = this.shadowRoot.querySelector("input[name='noteLength']")
      this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
+     this._triggerKeys = ['Tab','1','q','2','w','e','4','r','5','t','6','y','u','8','i','9','o','p','+','å','´','¨', '\u27f5','\u21b5']
      this._oscList = {}
      this._masterGainNode = null
      this._noteFreq = null
      this._customWaveform = null
      this._sineTerms = null
      this._cosineTerms = null
+     this._noteLength = 100
    }
 
   /**
@@ -225,11 +241,18 @@
       this.createKeyboard()
       
     }, false)
+
+    this._volumeControl.addEventListener('change', () => {
+      this.changeVolume()
+    }, false)
     
+    this._noteLengthControl.addEventListener('change', () => {
+      this.changeNoteLength()
+    }, false)
 
     window.addEventListener('keydown', event =>{
       event.preventDefault()
-      if(event.repeat === false){
+      if(event.repeat === false && this._triggerKeys.includes(event.key)){
         let key = this._keyboard.querySelector(`#key${event.key}`)
         this.notePressed(key, event.key)
         key.style.backgroundColor = "#599"
@@ -237,6 +260,7 @@
     })
 
     window.addEventListener('keyup', event =>{
+      if(this._triggerKeys.includes(event.key)){
         let key = this._keyboard.querySelector(`#key${event.key}`)
         this.noteReleased(key, event.key)
         key.style.backgroundColor = "white"
@@ -244,7 +268,7 @@
         if(key.getAttribute('class') === "sharpKey"){
           key.style.backgroundColor = "black"
         }
-        
+      }
     }, false)
    }
 
@@ -295,6 +319,7 @@
       keyList.forEach((key, i2) => {
         if(key[0].length > 1){
           blackKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
+          console.log(key[0], i1, key[1], keyIndex)
         }else{
           whiteKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
         }
@@ -316,10 +341,6 @@
      this._masterGainNode.connect(this._audioContext.destination)
      this._masterGainNode.gain.value = this._volumeControl.value
 
-     this._volumeControl.addEventListener('change', () => {
-       this.changeVolume()
-     }, false)
-
      this.createKeyboard()
 
      this._sineTerms = new Float32Array([0, 0, 1, 0, 1])
@@ -327,19 +348,15 @@
      this._customWaveform = this._audioContext.createPeriodicWave(this._cosineTerms, this._sineTerms)
    }
 
-   changeVolume () {
-     this._masterGainNode.gain.value = this._volumeControl.value
-   }
-
    createKey (note, octave, freq, keyIndex) {
      
      let keyElement = document.createElement('div')
      let labelElement = document.createElement('div')
-     let triggerKeys = ['Tab','1','q','2','w','e','4','r','5','t','6','y','u','8','i','9','o','p','+','å','´','¨', '\u27f5','\u21b5']
+     
 
 
      keyElement.className = 'key'
-     keyElement.id = `key${triggerKeys[keyIndex]}`
+     keyElement.id = `key${this._triggerKeys[keyIndex]}`
      keyElement.dataset['octave'] = octave
      keyElement.dataset['note'] = note
      keyElement.dataset['frequency'] = freq
@@ -348,7 +365,7 @@
        keyElement.setAttribute('class', 'sharpKey')
      }
 
-     labelElement.innerHTML = triggerKeys[keyIndex]
+     labelElement.innerHTML = this._triggerKeys[keyIndex]
      
      keyElement.appendChild(labelElement)
 
@@ -387,6 +404,10 @@
    }
 
    notePressed (keyElement, key) {
+    setTimeout(()=>{
+      this.noteReleased(keyElement, key)
+    }, this._noteLength)
+
      let dataset = keyElement.dataset
      if (!dataset['pressed']) {
        this._oscList[key] = this.playTone(dataset['frequency'])
@@ -398,14 +419,21 @@
      let dataset = keyElement.dataset
      
      if (dataset && dataset['pressed']) {
-       console.log(this._oscList)
        this._oscList[key].stop()
        delete this._oscList[key] //kommer ej funka med sequencern
        delete dataset['pressed']
      }
    }
+
+  changeVolume () {
+    this._masterGainNode.gain.value = this._volumeControl.value
+  }
+
+  changeNoteLength () {
+   this._noteLength = this._noteLengthControl.value
+ }
 }
 
  window.customElements.define('synth-element', Synth)
 
- module.exports = Synth
+module.exports = Synth
