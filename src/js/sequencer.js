@@ -523,7 +523,7 @@ class Sequencer extends window.HTMLElement {
             if (this._trackInstrument[cells[i].getAttribute('row')] === 'synths') {
               let note = cells[i].getAttribute('note')
               let octave = Number(cells[i].getAttribute('octave'))
-              let frequency = this._synth._noteTable[octave][note]
+              let frequency = this._synth._noteFreq[octave][note]
               let key = this._synth.createKey(note, octave, frequency, note + `${octave}`)
               this._synth.notePressed(key, note + `${octave}`)
             }

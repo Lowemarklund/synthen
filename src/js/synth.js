@@ -235,7 +235,8 @@
          this._keyboard.removeChild(octave)
        })
 
-       this._noteFreq = this.createNoteTable(Number(this._octavePicker.value))
+       this._noteFreq = this.createNoteTable(1)
+       this.createKeyboard(Number(this._octavePicker.value))
      }, false)
 
      this._volumeControl.addEventListener('change', () => {
@@ -302,12 +303,12 @@
      return noteFreq
    }
 
-   createKeyboard () {
+   createKeyboard (octave) {
      let keyIndex = 0
 
      this._noteFreq.forEach((keys, i1) => {
 
-       if (i1 < 3) {
+       if (i1 <= octave + 1 && i1 >= octave) {
         let keyList = Object.entries(keys)
         let whiteKeys = document.createElement('div')
         let blackKeys = document.createElement('div')
@@ -338,7 +339,7 @@
      this._masterGainNode.connect(this._audioContext.destination)
      this._masterGainNode.gain.value = this._volumeControl.value
 
-     this.createKeyboard()
+     this.createKeyboard(3)
 
      this._sineTerms = new Float32Array([0, 0, 1, 0, 1])
      this._cosineTerms = new Float32Array(this._sineTerms.length)
