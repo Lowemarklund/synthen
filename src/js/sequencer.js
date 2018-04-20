@@ -119,6 +119,10 @@ template.innerHTML =
         .clearButton {
             text-align: left;
         }
+
+        .changeNoteMenu {
+            display: inline-block;
+        }
     </style>
 </div>
 
@@ -173,14 +177,14 @@ class Sequencer extends window.HTMLElement {
       '/image/cowbell.png'
     ]
     this._trackInstrument = {
-        1: 'kicks',
-        2: 'snares',
-        3: 'hi-hats',
-        4: 'toms',
-        5: 'cymbals',
-        6: 'percussion',
-        7: 'claps',
-        8: 'cowbells'
+      1: 'kicks',
+      2: 'snares',
+      3: 'hi-hats',
+      4: 'toms',
+      5: 'cymbals',
+      6: 'percussion',
+      7: 'claps',
+      8: 'cowbells'
     }
     this._hasFocus = false
     this._synth = new Synth()
@@ -255,9 +259,9 @@ class Sequencer extends window.HTMLElement {
           this.cellDeactivate(event.target)
         }
       }
-      if(event.target.getAttribute('class') === 'cell' && event.target.getAttribute('active') === 'true' && event.shiftKey === true){
-        event.target.innerText = 'C'
-      }   
+      if (event.target.getAttribute('class') === 'cell' && event.target.getAttribute('active') === 'true' && event.shiftKey === true) {
+        this.changeCellNote(event.target)
+      }
 
       // pauses and plays the sequencer(s)
       if (event.target.getAttribute('class') === 'pausePlayButton') {
@@ -286,9 +290,7 @@ class Sequencer extends window.HTMLElement {
           event.target.nextSibling.innerText = '1'
           this._trackSamples[event.target.nextSibling.nextSibling.getAttribute('row')].src = `/audio/drums/${drumTypes[0]}/1.wav`
           this._trackInstrument[event.target.nextSibling.nextSibling.getAttribute('row')] = drumTypes[nextIcon]
-        }
-        
-        else {
+        } else {
           nextIcon = Number(event.target.getAttribute('type')) + 1
           event.target.setAttribute('src', this._drumImages[nextIcon])
           event.target.setAttribute('type', [`${nextIcon}`])
@@ -394,6 +396,9 @@ class Sequencer extends window.HTMLElement {
       cell.setAttribute('class', `cell`)
       cell.setAttribute('column', `${column}`)
       cell.setAttribute('row', `${row}`)
+      cell.setAttribute('note', 'C')
+      cell.setAttribute('octave', '3')
+      cell.setAttribute('notemenuopen', 'false')
       this._grid.appendChild(cell)
 
       if (column === loopLength) {
@@ -501,13 +506,9 @@ class Sequencer extends window.HTMLElement {
    * @return {function} - An interval creating each beat of the sequencer
    * @memberof Sequencer
    */
-playGrid (beat = this.getAttribute('currentbeat'), tempo = this._tempo) {
+  playGrid (beat = this.getAttribute('currentbeat'), tempo = this._tempo) {
     let column = Number(beat)
     let cells = this._grid.querySelectorAll('.cell')
-    
-    let key = this._synth.createKey('C#', 3, 103.94348661632702, 1)
-    
-   
 
     let click = setInterval(() => {
       for (let i = 0; i < cells.length; i += 1) {
@@ -519,10 +520,14 @@ playGrid (beat = this.getAttribute('currentbeat'), tempo = this._tempo) {
             cells[i - 1].style.backgroundColor = 'white'
           }
           if (cells[i].getAttribute('active') === 'true') {
-            if(this._trackInstrument[cells[i].getAttribute('row')] === 'synths'){
-                this._synth.notePressed(key, '1')
+            if (this._trackInstrument[cells[i].getAttribute('row')] === 'synths') {
+              let note = cells[i].getAttribute('note')
+              let octave = Number(cells[i].getAttribute('octave'))
+              let frequency = this._synth._noteTable[octave][note]
+              let key = this._synth.createKey(note, octave, frequency, note + `${octave}`)
+              this._synth.notePressed(key, note + `${octave}`)
             }
-        
+
             this._trackSamples[cells[i].getAttribute('row')].pause()
             this._trackSamples[cells[i].getAttribute('row')].currentTime = 0
             let playPromise = this._trackSamples[cells[i].getAttribute('row')].play()
@@ -575,6 +580,10 @@ playGrid (beat = this.getAttribute('currentbeat'), tempo = this._tempo) {
   cellDeactivate (cell) {
     cell.setAttribute('active', 'false')
     cell.style.backgroundColor = 'white'
+    cell.removeAttribute('note')
+    cell.removeAttribute('octave')
+    this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]
+    
   }
   /**
    * Deactivates a cell in the grid
@@ -584,6 +593,75 @@ playGrid (beat = this.getAttribute('currentbeat'), tempo = this._tempo) {
   cellActivate (cell) {
     cell.setAttribute('active', 'true')
     cell.style.backgroundColor = 'yellow'
+  }
+
+  changeCellNote (cell) {
+    let changeNoteMenu = document.createElement('div')
+    let noteSelectionMenu = document.createElement('div')
+    let octaveSelectionMenu = document.createElement('div')
+    let closeButton = document.createElement('div')
+
+    changeNoteMenu.setAttribute('class', 'changeNoteMenu')
+    noteSelectionMenu.setAttribute('class', 'noteSelectionMenu')
+    octaveSelectionMenu.setAttribute('class', 'octaveSelectionMenu')
+
+    noteSelectionMenu.innerHTML =
+    `<span>Note: </span>
+    <select name="note">
+      <option value="C" selected>C</option>
+      <option value="C#">C#</option>
+      <option value="D">D</option>
+      <option value="D#">D#</option>
+      <option value="E">E</option>
+      <option value="F">F</option>
+      <option value="F#">F#</option>
+      <option value="G">G</option>
+      <option value="G#">G#</option>
+      <option value="A">A</option>
+      <option value="A#">A#</option>
+      <option value="B">B</option>
+    </select>`
+    octaveSelectionMenu.innerHTML =
+    `<span>Octave: </span>
+    <select name="octave">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3" selected>3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+    </select>`
+
+    closeButton.innerText = 'x'
+
+    if(cell.getAttribute('notemenuopen') === 'false' ){
+        changeNoteMenu.appendChild(noteSelectionMenu)
+        changeNoteMenu.appendChild(octaveSelectionMenu)
+        changeNoteMenu.appendChild(closeButton)
+        cell.parentNode.appendChild(changeNoteMenu)
+        cell.setAttribute('notemenuopen', 'true') 
+    }
+    
+
+    let changeNoteElement = this.shadowRoot.querySelector("select[name='note']")
+    let changeOctaveElement = this.shadowRoot.querySelector("select[name='octave']")
+
+    if (cell.getAttribute('note') && cell.getAttribute('octave')) {
+      changeNoteElement.value = cell.getAttribute('note')
+      changeOctaveElement.value = cell.getAttribute('octave')
+    }
+
+    changeNoteMenu.onchange = () => {
+      cell.setAttribute('note', `${changeNoteElement.value}`)
+      cell.setAttribute('octave', `${changeOctaveElement.value}`)
+    }
+
+    closeButton.onclick = (event) => {
+      for (let i = 0; i < event.target.parentNode.children.length;) {
+        event.target.parentNode.removeChild(event.target.parentNode.children[i])
+      }
+    }
   }
 }
 

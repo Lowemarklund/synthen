@@ -180,14 +180,13 @@
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
      this._noteLengthControl = this.shadowRoot.querySelector("input[name='noteLength']")
      this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
-     this._triggerKeys = ['Tab','1','q','2','w','e','4','r','5','t','6','y','u','8','i','9','o','p','+','å','´','¨', '\u27f5','\u21b5']
+     this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '+', 'å', '´', '¨', '\u27f5', '\u21b5']
      this._oscList = {}
      this._masterGainNode = null
      this._noteFreq = null
      this._customWaveform = null
      this._sineTerms = null
      this._cosineTerms = null
-     this._noteLength = 100
    }
 
   /**
@@ -228,48 +227,44 @@
    * @memberof Synth
    */
    inputListen () {
-    this._octavePicker.addEventListener('change', () => {
-  
-      let keyboardOctaves = this._keyboard.querySelectorAll('.octave')
+     this._octavePicker.addEventListener('change', () => {
+       let keyboardOctaves = this._keyboard.querySelectorAll('.octave')
 
-        //removes previous keyboard octaves
-      keyboardOctaves.forEach(octave => {
-        this._keyboard.removeChild(octave)
-      })
+        // removes previous keyboard octaves
+       keyboardOctaves.forEach(octave => {
+         this._keyboard.removeChild(octave)
+       })
 
-      this._noteFreq = this.createNoteTable(Number(this._octavePicker.value))
-      this.createKeyboard()
-      
-    }, false)
+       this._noteFreq = this.createNoteTable(Number(this._octavePicker.value))
+     }, false)
 
-    this._volumeControl.addEventListener('change', () => {
-      this.changeVolume()
-    }, false)
-    
-    this._noteLengthControl.addEventListener('change', () => {
-      this.changeNoteLength()
-    }, false)
+     this._volumeControl.addEventListener('change', () => {
+       this.changeVolume()
+     }, false)
 
-    window.addEventListener('keydown', event =>{
-      event.preventDefault()
-      if(event.repeat === false && this._triggerKeys.includes(event.key)){
-        let key = this._keyboard.querySelector(`#key${event.key}`)
-        this.notePressed(key, event.key)
-        key.style.backgroundColor = "#599"
-      }
-    })
+     this._noteLengthControl.addEventListener('change', () => {
+       this.changeNoteLength()
+     }, false)
 
-    window.addEventListener('keyup', event =>{
-      if(this._triggerKeys.includes(event.key)){
-        let key = this._keyboard.querySelector(`#key${event.key}`)
-        this.noteReleased(key, event.key)
-        key.style.backgroundColor = "white"
+     window.addEventListener('keydown', event => {
+       if (event.repeat === false && this._triggerKeys.includes(event.key)) {
+         let key = this._keyboard.querySelector(`#key${event.key}`)
+         this.notePressed(key, event.key)
+         key.style.backgroundColor = '#599'
+       }
+     })
 
-        if(key.getAttribute('class') === "sharpKey"){
-          key.style.backgroundColor = "black"
-        }
-      }
-    }, false)
+     window.addEventListener('keyup', event => {
+       if (this._triggerKeys.includes(event.key)) {
+         let key = this._keyboard.querySelector(`#key${event.key}`)
+         this.noteReleased(key, event.key)
+         key.style.backgroundColor = 'white'
+
+         if (key.getAttribute('class') === 'sharpKey') {
+           key.style.backgroundColor = 'black'
+         }
+       }
+     }, false)
    }
 
       /**
@@ -278,65 +273,67 @@
    * @memberof Synth
    */
    createNoteTable (octave) {
+     let noteFreq = []
 
-    let noteFreq = []
-     
-    for (let i = 0; i < 2; i++) {
+     for (let i = 0; i < 8; i++) {
        noteFreq[octave + i] = []
-    }
-     
-    noteFreq[octave]['C'] = 32.703195662574829 
-    noteFreq[octave]['C#'] = 34.647828872109012
-    noteFreq[octave]['D'] = 36.708095989675945
-    noteFreq[octave]['D#'] = 38.890872965260113
-    noteFreq[octave]['E'] = 41.203444614108741
-    noteFreq[octave]['F'] = 43.653528929125485
-    noteFreq[octave]['F#'] = 46.249302838954299
-    noteFreq[octave]['G'] = 48.999429497718661
-    noteFreq[octave]['G#'] = 51.913087197493142
-    noteFreq[octave]['A'] = 55.000000000000000
-    noteFreq[octave]['A#'] = 58.270470189761239
-    noteFreq[octave]['B'] = 61.735412657015513
+     }
 
-    for(var pitch in noteFreq[octave]){
-      noteFreq[octave][pitch] = noteFreq[octave][pitch] * octave
-      noteFreq[octave + 1][pitch] = noteFreq[octave][pitch] * 2
-    }
+     noteFreq[octave]['C'] = 32.703195662574829
+     noteFreq[octave]['C#'] = 34.647828872109012
+     noteFreq[octave]['D'] = 36.708095989675945
+     noteFreq[octave]['D#'] = 38.890872965260113
+     noteFreq[octave]['E'] = 41.203444614108741
+     noteFreq[octave]['F'] = 43.653528929125485
+     noteFreq[octave]['F#'] = 46.249302838954299
+     noteFreq[octave]['G'] = 48.999429497718661
+     noteFreq[octave]['G#'] = 51.913087197493142
+     noteFreq[octave]['A'] = 55.000000000000000
+     noteFreq[octave]['A#'] = 58.270470189761239
+     noteFreq[octave]['B'] = 61.735412657015513
 
-    return noteFreq
+     for (var pitch in noteFreq[octave]) {
+       for (let i = 2; i < 8; i++) {
+         noteFreq[i][pitch] = noteFreq[i-1][pitch] * 2
+       }
+     }
+
+     this._noteFreq = noteFreq
+     return noteFreq
    }
 
-   createKeyboard(){
-    let keyIndex = 0
+   createKeyboard () {
+     let keyIndex = 0
 
-    this._noteFreq.forEach((keys, i1) => {
-      let keyList = Object.entries(keys)
-      let whiteKeys = document.createElement('div')
-      let blackKeys = document.createElement('div')
-      let octaveElem = document.createElement('div')
-      octaveElem.className = 'octave'
+     this._noteFreq.forEach((keys, i1) => {
 
-      keyList.forEach((key, i2) => {
-        if(key[0].length > 1){
-          blackKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
-          console.log(key[0], i1, key[1], keyIndex)
-        }else{
-          whiteKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
-        }
-
-        keyIndex ++
-      })
-  
-      octaveElem.appendChild(blackKeys)
-      octaveElem.appendChild(whiteKeys)
-      this._keyboard.appendChild(octaveElem)
-      
-    })
-
+       if (i1 < 3) {
+        let keyList = Object.entries(keys)
+        let whiteKeys = document.createElement('div')
+        let blackKeys = document.createElement('div')
+        let octaveElem = document.createElement('div')
+        octaveElem.className = 'octave'
+ 
+        keyList.forEach((key, i2) => {
+          if (key[0].length > 1) {
+            blackKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
+          } else {
+            whiteKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
+          }
+ 
+          keyIndex++
+        })
+ 
+        octaveElem.appendChild(blackKeys)
+        octaveElem.appendChild(whiteKeys)
+        this._keyboard.appendChild(octaveElem)
+       } 
+     })
    }
 
    setup () {
-     this._noteFreq = this.createNoteTable(3)
+
+     this._noteFreq = this.createNoteTable(1)
      this._masterGainNode = this._audioContext.createGain()
      this._masterGainNode.connect(this._audioContext.destination)
      this._masterGainNode.gain.value = this._volumeControl.value
@@ -349,11 +346,8 @@
    }
 
    createKey (note, octave, freq, keyIndex) {
-     
      let keyElement = document.createElement('div')
      let labelElement = document.createElement('div')
-     
-
 
      keyElement.className = 'key'
      keyElement.id = `key${this._triggerKeys[keyIndex]}`
@@ -361,12 +355,12 @@
      keyElement.dataset['note'] = note
      keyElement.dataset['frequency'] = freq
 
-     if(note.length > 1){
+     if (note.length > 1) {
        keyElement.setAttribute('class', 'sharpKey')
      }
 
      labelElement.innerHTML = this._triggerKeys[keyIndex]
-     
+
      keyElement.appendChild(labelElement)
 
      keyElement.addEventListener('mousedown', event => {
@@ -403,37 +397,37 @@
      return osc
    }
 
-   notePressed (keyElement, key) {
-    setTimeout(()=>{
-      this.noteReleased(keyElement, key)
-    }, this._noteLength)
+   notePressed (keyElement, id) {
+     setTimeout(() => {
+       this.noteReleased(keyElement, id)
+     }, this._noteLength)
 
      let dataset = keyElement.dataset
      if (!dataset['pressed']) {
-       this._oscList[key] = this.playTone(dataset['frequency'])
+       this._oscList[id] = this.playTone(dataset['frequency'])
        dataset['pressed'] = 'yes'
      }
    }
 
-   noteReleased (keyElement, key) { 
+   noteReleased (keyElement, id) {
      let dataset = keyElement.dataset
-     
+
      if (dataset && dataset['pressed']) {
-       this._oscList[key].stop()
-       delete this._oscList[key] //kommer ej funka med sequencern
+       this._oscList[id].stop()
+       delete this._oscList[id] // kommer ej funka med sequencern
        delete dataset['pressed']
      }
    }
 
-  changeVolume () {
-    this._masterGainNode.gain.value = this._volumeControl.value
-  }
+   changeVolume () {
+     this._masterGainNode.gain.value = this._volumeControl.value
+   }
 
-  changeNoteLength () {
-   this._noteLength = this._noteLengthControl.value
- }
+   changeNoteLength () {
+     this._noteLength = this._noteLengthControl.value
+   }
 }
 
  window.customElements.define('synth-element', Synth)
 
-module.exports = Synth
+ module.exports = Synth
