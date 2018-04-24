@@ -150,7 +150,9 @@ class Sequencer extends window.HTMLElement {
     this._grid = this.shadowRoot.querySelector('.grid')
     this._pausePlayButton = this.shadowRoot.querySelector('.pausePlayButton')
     this._bpmLog = this.shadowRoot.querySelector('.bpmLog')
+    this._bpmInput = this.shadowRoot.querySelector('.bpmInput')
     this._loopLengthLog = this.shadowRoot.querySelector('.loopLengthLog')
+    this._loopLengthInput = this.shadowRoot.querySelector('.loopLengthInput')
     this._cells = this._grid.querySelectorAll('.cell')
     this._cellColumns = null
     this._storedGrid = null
@@ -166,20 +168,21 @@ class Sequencer extends window.HTMLElement {
       '7': document.createElement('audio'),
       '8': document.createElement('audio')
     }
-    this._drumImages = [
-      '/image/kick.png',
-      '/image/snare.png',
-      '/image/hi-hat.png',
-      '/image/tom.png',
-      '/image/crash.png',
-      '/image/percussion.png',
-      '/image/clap.png',
-      '/image/cowbell.png'
-    ]
+    this._drumImages = {
+      "kicks": '/image/kicks.png',
+      "snares": '/image/snares.png',
+      "hihats":'/image/hi-hats.png',
+      "toms":'/image/toms.png',
+      "cymbals":'/image/cymbals.png',
+      "percussion":'/image/percussion.png',
+      "claps":'/image/claps.png',
+      "cowbells":'/image/cowbells.png',
+      "synths":'/image/synths.png'
+    }
     this._trackInstrument = {
       1: 'kicks',
       2: 'snares',
-      3: 'hi-hats',
+      3: 'hihats',
       4: 'toms',
       5: 'cymbals',
       6: 'percussion',
@@ -285,19 +288,18 @@ class Sequencer extends window.HTMLElement {
 
         if (Number(event.target.getAttribute('type')) + 1 > 8) {
           nextIcon = 0
-          event.target.setAttribute('src', this._drumImages[nextIcon])
+          event.target.setAttribute('src', this._drumImages[drumTypes[nextIcon]])
           event.target.setAttribute('type', [`${nextIcon}`])
           event.target.nextSibling.innerText = '1'
           this._trackSamples[event.target.nextSibling.nextSibling.getAttribute('row')].src = `/audio/drums/${drumTypes[0]}/1.wav`
           this._trackInstrument[event.target.nextSibling.nextSibling.getAttribute('row')] = drumTypes[nextIcon]
         } else {
           nextIcon = Number(event.target.getAttribute('type')) + 1
-          event.target.setAttribute('src', this._drumImages[nextIcon])
+          event.target.setAttribute('src', this._drumImages[drumTypes[nextIcon]])
           event.target.setAttribute('type', [`${nextIcon}`])
           event.target.nextSibling.innerText = '1'
           this._trackSamples[event.target.nextSibling.nextSibling.getAttribute('row')].src = `/audio/drums/${drumTypes[currentInstrument + 1]}/1.wav`
           this._trackInstrument[event.target.nextSibling.nextSibling.getAttribute('row')] = drumTypes[nextIcon]
-          console.log(this._trackInstrument[event.target.nextSibling.nextSibling.getAttribute('row')])
         }
       }
       if (event.target.getAttribute('class') === 'instrumentNumber') {
@@ -327,10 +329,12 @@ class Sequencer extends window.HTMLElement {
                // Error handling
           if (Number(event.target.value) <= 32 && Number(event.target.value) > 0) {
             this.setAttribute('looplength', event.target.value)
+            
             this._loopLengthLog.innerText = 'Length: ' + event.target.value
             event.target.setAttribute('placeholder', 'Enter loop length (max = 32 min = 1)')
             event.target.value = null
             event.target.blur()
+            
           } if (Number(event.target.value) > 32 || Number(event.target.value) < 0 || isNaN(Number(event.target.value)) === true) {
             event.target.setAttribute('placeholder', 'Value must be an integer between 1 and 32')
             event.target.value = null
@@ -376,11 +380,12 @@ class Sequencer extends window.HTMLElement {
     let loopLength = Number(this.getAttribute('looplength'))
     let maxRows = 8
 
+
     for (let i = 0; i < loopLength * 9; i++) {
       if (i === 0) {
         let instrumentType = document.createElement('img')
         let instrumentNumber = document.createElement('h6')
-        instrumentType.setAttribute('src', this._drumImages[0])
+        instrumentType.setAttribute('src', this._drumImages[this._trackInstrument[row]])
         instrumentType.setAttribute('type', `${row - 1}`)
         instrumentType.setAttribute('class', 'instrumentIcon')
         instrumentNumber.setAttribute('class', 'instrumentNumber')
@@ -405,7 +410,7 @@ class Sequencer extends window.HTMLElement {
         let rowBreak = document.createElement('br')
         let instrumentType = document.createElement('img')
         let instrumentNumber = document.createElement('h6')
-        instrumentType.setAttribute('src', this._drumImages[row])
+        instrumentType.setAttribute('src', this._drumImages[this._trackInstrument[row + 1]])
         instrumentType.setAttribute('type', `${row}`)
         instrumentType.setAttribute('class', 'instrumentIcon')
         instrumentNumber.setAttribute('class', 'instrumentNumber')
@@ -525,7 +530,8 @@ class Sequencer extends window.HTMLElement {
               let octave = Number(cells[i].getAttribute('octave'))
               let frequency = this._synth._noteFreq[octave][note]
               let key = this._synth.createKey(note, octave, frequency, note + `${octave}`)
-              this._synth.notePressed(key, note + `${octave}`)
+              let cellId = cells[i].getAttribute('row') + cells[i].getAttribute('column')
+              this._synth.notePressed(key, note + `${octave}`, cellId)
             }
 
             this._trackSamples[cells[i].getAttribute('row')].pause()
@@ -580,8 +586,6 @@ class Sequencer extends window.HTMLElement {
   cellDeactivate (cell) {
     cell.setAttribute('active', 'false')
     cell.style.backgroundColor = 'white'
-    cell.removeAttribute('note')
-    cell.removeAttribute('octave')
     this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]
     
   }

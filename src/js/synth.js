@@ -23,7 +23,7 @@
           </datalist>
           <span>NoteLength: </span>
           <input type="range" min="0" max="1000" step="10"
-              value="100" list="noteLengths" name="noteLength">
+              value="500" list="noteLengths" name="noteLength">
           <datalist id="volumes">
             <option value="0.0" label="Mute">
             <option value="1.0" label="100%">
@@ -187,6 +187,17 @@
      this._customWaveform = null
      this._sineTerms = null
      this._cosineTerms = null
+     this._sequencer = null
+     this._activeNotes = {
+       1: null,
+       2: null,
+       3: null,
+       4: null,
+       5: null,
+       6: null,
+       7: null,
+       8: null
+     }
    }
 
   /**
@@ -248,11 +259,15 @@
      }, false)
 
      window.addEventListener('keydown', event => {
-       if (event.repeat === false && this._triggerKeys.includes(event.key)) {
-         let key = this._keyboard.querySelector(`#key${event.key}`)
-         this.notePressed(key, event.key)
-         key.style.backgroundColor = '#599'
-       }
+      if(document.activeElement !== this._sequencer){
+        console.log(this._noteLength)
+        event.preventDefault()
+        if (event.repeat === false && this._triggerKeys.includes(event.key)) {
+          let key = this._keyboard.querySelector(`#key${event.key}`)
+          this.notePressed(key, event.key)
+          key.style.backgroundColor = '#599'
+        }
+      }
      })
 
      window.addEventListener('keyup', event => {
@@ -338,6 +353,7 @@
      this._masterGainNode = this._audioContext.createGain()
      this._masterGainNode.connect(this._audioContext.destination)
      this._masterGainNode.gain.value = this._volumeControl.value
+     this._noteLength = this._noteLengthControl.value
 
      this.createKeyboard(3)
 
@@ -398,25 +414,47 @@
      return osc
    }
 
-   notePressed (keyElement, id) {
-     setTimeout(() => {
-       this.noteReleased(keyElement, id)
-     }, this._noteLength)
+   notePressed (keyElement, id, cellId) {
 
      let dataset = keyElement.dataset
+
      if (!dataset['pressed']) {
-       this._oscList[id] = this.playTone(dataset['frequency'])
+       if(cellId){
+        let row = Number(cellId[0])
+
+        if(this._activeNotes[row] !== null){
+          this.noteReleased(this._activeNotes[row].keyElement, this._activeNotes[row].id, this._activeNotes[row].cellId)
+        }
+
+        this._activeNotes[row] = {
+          keyElement: keyElement,
+          id: id,
+          cellId: cellId
+        } 
+          
+        this._oscList[cellId] = this.playTone(dataset['frequency'])
+         
+       }else{
+          this._oscList[id] = this.playTone(dataset['frequency'])
+       }
        dataset['pressed'] = 'yes'
+       setTimeout(() => {
+        this.noteReleased(keyElement, id, cellId)
+      }, this._noteLength)
      }
    }
 
-   noteReleased (keyElement, id) {
+   noteReleased (keyElement, id, cellId) {
      let dataset = keyElement.dataset
-
      if (dataset && dataset['pressed']) {
-       this._oscList[id].stop()
-       delete this._oscList[id] // kommer ej funka med sequencern
-       delete dataset['pressed']
+       if(cellId){
+        this._oscList[cellId].stop()
+        delete this._oscList[cellId] // kommer ej funka med sequencern
+       }else{
+        this._oscList[id].stop()
+        delete this._oscList[id] // kommer ej funka med sequencern
+       }
+        delete dataset['pressed']
      }
    }
 
