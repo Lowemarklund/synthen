@@ -9,11 +9,12 @@
  'use strict'
 
  const template = document.createElement('template')
+
  template.innerHTML =
 `<div class="synth">
     <div class="keyboard">
       <div class="settingsBar">
-        <div class="left">
+        <div class="volumeInput">
           <span>Volume: </span>
           <input type="range" min="0.0" max="1.0" step="0.01"
               value="0.5" list="volumes" name="volume">
@@ -21,13 +22,7 @@
             <option value="0.0" label="Mute">
             <option value="1.0" label="100%">
           </datalist>
-          <span>NoteLength: </span>
-          <input type="range" min="0" max="1000" step="10"
-              value="500" list="noteLengths" name="noteLength">
-          <datalist id="volumes">
-            <option value="0.0" label="Mute">
-            <option value="1.0" label="100%">
-          </datalist>
+        </div>
         <div class="right">
           <span>Current waveform: </span>
           <select name="waveform">
@@ -47,9 +42,9 @@
             <option value="7">7</option>
           </select>
         </div>
-      </div>
-      </div>
-    <div>
+    </div>
+  </div>
+<div>
 
     <style>
       .synth {
@@ -125,10 +120,11 @@
       }
       .right {
         margin: 10px;
+        text-align: center;
       }
 
-      .left{
-        
+      .volumeInput{
+        text-align: center;
       }
 
       .sharpKey {
@@ -178,7 +174,6 @@
      this._wavePicker = this.shadowRoot.querySelector("select[name='waveform']")
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
-     this._noteLengthControl = this.shadowRoot.querySelector("input[name='noteLength']")
      this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
      this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '+', 'å', '´', '¨', '\u27f5', '\u21b5']
      this._oscList = {}
@@ -254,13 +249,8 @@
        this.changeVolume()
      }, false)
 
-     this._noteLengthControl.addEventListener('change', () => {
-       this.changeNoteLength()
-     }, false)
-
      window.addEventListener('keydown', event => {
       if(document.activeElement !== this._sequencer){
-        console.log(this._noteLength)
         event.preventDefault()
         if (event.repeat === false && this._triggerKeys.includes(event.key)) {
           let key = this._keyboard.querySelector(`#key${event.key}`)
@@ -353,7 +343,7 @@
      this._masterGainNode = this._audioContext.createGain()
      this._masterGainNode.connect(this._audioContext.destination)
      this._masterGainNode.gain.value = this._volumeControl.value
-     this._noteLength = this._noteLengthControl.value
+     this._noteLength = 500
 
      this.createKeyboard(3)
 
@@ -414,12 +404,14 @@
      return osc
    }
 
-   notePressed (keyElement, id, cellId) {
+   notePressed (keyElement, id, cell) {
 
      let dataset = keyElement.dataset
 
+
      if (!dataset['pressed']) {
-       if(cellId){
+       if(cell){
+        let cellId = cell.getAttribute('row') + cell.getAttribute('column')
         let row = Number(cellId[0])
 
         if(this._activeNotes[row] !== null){
@@ -433,26 +425,33 @@
         } 
           
         this._oscList[cellId] = this.playTone(dataset['frequency'])
+
+        this._noteLength = Number(cell.getAttribute('noteLength'))
+
+        console.log(this._noteLength)
+
+        setTimeout(() => {
+          this.noteReleased(keyElement, id, cellId)
+        }, this._noteLength)
          
        }else{
           this._oscList[id] = this.playTone(dataset['frequency'])
        }
+
        dataset['pressed'] = 'yes'
-       setTimeout(() => {
-        this.noteReleased(keyElement, id, cellId)
-      }, this._noteLength)
      }
    }
 
    noteReleased (keyElement, id, cellId) {
      let dataset = keyElement.dataset
+     
      if (dataset && dataset['pressed']) {
        if(cellId){
         this._oscList[cellId].stop()
-        delete this._oscList[cellId] // kommer ej funka med sequencern
+        delete this._oscList[cellId] 
        }else{
         this._oscList[id].stop()
-        delete this._oscList[id] // kommer ej funka med sequencern
+        delete this._oscList[id] 
        }
         delete dataset['pressed']
      }
@@ -460,10 +459,6 @@
 
    changeVolume () {
      this._masterGainNode.gain.value = this._volumeControl.value
-   }
-
-   changeNoteLength () {
-     this._noteLength = this._noteLengthControl.value
    }
 }
 
