@@ -175,7 +175,7 @@
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
      this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
-     this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '+', 'å', '´', '¨', '\u27f5', '\u21b5']
+     this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '0', 'å', '´', '¨', '\u27f5', '\u21b5']
      this._oscList = {}
      this._masterGainNode = null
      this._noteFreq = null
@@ -249,21 +249,57 @@
        this.changeVolume()
      }, false)
 
+  
      window.addEventListener('keydown', event => {
       if(document.activeElement !== this._sequencer){
         event.preventDefault()
-        if (event.repeat === false && this._triggerKeys.includes(event.key)) {
-          let key = this._keyboard.querySelector(`#key${event.key}`)
-          this.notePressed(key, event.key)
+        let triggeredKey = event.key
+        switch (event.code){
+          case "BracketRight":
+            triggeredKey = '¨'
+            break
+          case "Enter":
+            triggeredKey = '\u21b5'
+            break
+          case "Backspace":
+            triggeredKey = '\u27f5'
+            break
+          case "Equal":
+            triggeredKey =  '´'
+            break
+        }
+        if (event.repeat === false && this._triggerKeys.includes(triggeredKey)) {
+
+
+          let key = this._keyboard.querySelector(`#key${triggeredKey}`)
+          this.notePressed(key,  triggeredKey)
           key.style.backgroundColor = '#599'
         }
       }
      })
 
      window.addEventListener('keyup', event => {
-       if (this._triggerKeys.includes(event.key)) {
-         let key = this._keyboard.querySelector(`#key${event.key}`)
-         this.noteReleased(key, event.key)
+      let triggeredKey = event.key
+
+      switch (event.code){
+        case "BracketRight":
+          triggeredKey = '¨'
+          break
+        case "Enter":
+          triggeredKey = '\u21b5'
+          break
+        case "Backspace":
+          triggeredKey = '\u27f5'
+          break
+        case "Equal":
+          triggeredKey =  '´'
+          break
+      }
+       if (this._triggerKeys.includes(triggeredKey)) {
+        
+         
+         let key = this._keyboard.querySelector(`#key${triggeredKey}`)
+         this.noteReleased(key, triggeredKey)
          key.style.backgroundColor = 'white'
 
          if (key.getAttribute('class') === 'sharpKey') {
@@ -427,8 +463,6 @@
         this._oscList[cellId] = this.playTone(dataset['frequency'])
 
         this._noteLength = Number(cell.getAttribute('noteLength'))
-
-        console.log(this._noteLength)
 
         setTimeout(() => {
           this.noteReleased(keyElement, id, cellId)

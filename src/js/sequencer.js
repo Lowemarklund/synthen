@@ -187,7 +187,7 @@ class Sequencer extends window.HTMLElement {
       5: 'cymbals',
       6: 'percussion',
       7: 'claps',
-      8: 'cowbells'
+      8: 'synths'
     }
     this._hasFocus = false
     this._synth = new Synth()
@@ -245,7 +245,7 @@ class Sequencer extends window.HTMLElement {
     this._trackSamples['5'].src = '/audio/drums/cymbals/1.wav'
     this._trackSamples['6'].src = '/audio/drums/percussion/1.wav'
     this._trackSamples['7'].src = '/audio/drums/claps/1.wav'
-    this._trackSamples['8'].src = '/audio/drums/cowbells/1.wav'
+
   }
 
      /**
@@ -264,7 +264,7 @@ class Sequencer extends window.HTMLElement {
         }
       }
       if (event.target.getAttribute('class') === 'cell' && event.target.getAttribute('active') === 'true' && event.shiftKey === true) {
-          this.cellActivate(event.target, true)
+          this.cellActivate(event.target, true, true)
       }
 
       // pauses and plays the sequencer(s)
@@ -406,8 +406,9 @@ class Sequencer extends window.HTMLElement {
       cell.setAttribute('row', `${row}`)
       cell.setAttribute('note', 'C')
       cell.setAttribute('octave', '3')
-      cell.setAttribute('noteLength', '300')
+      cell.setAttribute('noteLength', '100')
       cell.setAttribute('notemenuopen', 'false')
+      cell.setAttribute('chosen', 'false')
       this._grid.appendChild(cell)
 
       if (column === loopLength) {
@@ -496,7 +497,7 @@ class Sequencer extends window.HTMLElement {
    */
   loadStoredGrid () {
     for (let i = 0; i < this._cells.length; i++) {
-      if (this._cells[i].getAttribute('column') === this.getAttribute('currentbeat')) {
+      if (this._cells[i].getAttribute('column') === this.getAttribute('currentbeat') && this._cells[i].getAttribute('chosen') === 'false') {
         this._cells[i].style.backgroundColor = 'red'
       }
 
@@ -522,7 +523,10 @@ class Sequencer extends window.HTMLElement {
     let click = setInterval(() => {
       for (let i = 0; i < cells.length; i += 1) {
         if (Number(cells[i].getAttribute('column')) === column) {
-          cells[i].style.backgroundColor = 'red'
+          if(this._cells[i].getAttribute('chosen') === 'false'){
+            cells[i].style.backgroundColor = 'red'
+          }
+      
           this.setAttribute('currentbeat', column)
 
           if (i > 0 && cells[i - 1].getAttribute('active') === 'false') {
@@ -542,12 +546,14 @@ class Sequencer extends window.HTMLElement {
             let playPromise = this._trackSamples[cells[i].getAttribute('row')].play()
             playPromise.then(_ => {
 
+            }).catch(error =>{
+              
             })
           } else {
             this.cellDeactivate(cells[(cells.length) - 1])
           }
         }
-        if (cells[i].getAttribute('active') === 'true') {
+        if (cells[i].getAttribute('active') === 'true' && cells[i].getAttribute('chosen') === 'false') {
           this.cellActivate(cells[i], false)
         }
       }
@@ -595,11 +601,20 @@ class Sequencer extends window.HTMLElement {
    *
    * @memberof Sequencer
    */
-  cellActivate (cell, cellClicked) {
+  cellActivate (cell, cellClicked, shiftClick) {
     cell.setAttribute('active', 'true')
-    cell.setAttribute('chosen', 'true')
-
     cell.style.backgroundColor = 'yellow'
+    
+
+    if(cellClicked === true){
+      cell.style.backgroundColor = 'green'
+      cell.setAttribute('chosen', 'true')
+      this._grid.querySelectorAll('.cell').forEach(c => {
+        if(c.getAttribute('active') === 'true' && c !== cell){
+          this.cellActivate(c, false)
+        }
+      });
+    }
     
     if(this._trackInstrument[cell.getAttribute('row')] === 'synths' && cellClicked === true){
       if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]){
@@ -612,9 +627,9 @@ class Sequencer extends window.HTMLElement {
         this.changeCellNote(cell)
       }
       
+    }if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0] && this._trackInstrument[cell.getAttribute('row')] !== 'synths' && cellClicked === true){
+      this._grid.removeChild(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0])
     }
-    
-
   }
 
   changeCellNote (cell) {
