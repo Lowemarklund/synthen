@@ -29,6 +29,7 @@
      this.shadowRoot.appendChild(template.content.cloneNode(true))
      this._synth = this.shadowRoot.querySelector('.synth')
      this._keyboard = this.shadowRoot.querySelector('.keyboard')
+     this._newKeyboard = this.shadowRoot.querySelector('.newKeyboard')
      this._wavePicker = this.shadowRoot.querySelector("select[name='waveform']")
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
@@ -107,55 +108,50 @@
        this.changeVolume()
      }, false)
 
-  
      window.addEventListener('keydown', event => {
-      if(document.activeElement !== this._sequencer){
-        event.preventDefault()
-        let triggeredKey = event.key
-        switch (event.code){
-          case "BracketRight":
-            triggeredKey = '¨'
-            break
-          case "Enter":
-            triggeredKey = '\u21b5'
-            break
-          case "Backspace":
-            triggeredKey = '\u27f5'
-            break
-          case "Equal":
-            triggeredKey =  '´'
-            break
-        }
-        if (event.repeat === false && this._triggerKeys.includes(triggeredKey)) {
-
-
-          let key = this._keyboard.querySelector(`#key${triggeredKey}`)
-          this.notePressed(key,  triggeredKey)
-          key.style.backgroundColor = '#599'
-        }
-      }
+       if (document.activeElement !== this._sequencer) {
+         event.preventDefault()
+         let triggeredKey = event.key
+         switch (event.code) {
+           case 'BracketRight':
+             triggeredKey = '¨'
+             break
+           case 'Enter':
+             triggeredKey = '\u21b5'
+             break
+           case 'Backspace':
+             triggeredKey = '\u27f5'
+             break
+           case 'Equal':
+             triggeredKey = '´'
+             break
+         }
+         if (event.repeat === false && this._triggerKeys.includes(triggeredKey)) {
+           let key = this._keyboard.querySelector(`#key${triggeredKey}`)
+           this.notePressed(key, triggeredKey)
+           key.style.backgroundColor = '#599'
+         }
+       }
      })
 
      window.addEventListener('keyup', event => {
-      let triggeredKey = event.key
+       let triggeredKey = event.key
 
-      switch (event.code){
-        case "BracketRight":
-          triggeredKey = '¨'
-          break
-        case "Enter":
-          triggeredKey = '\u21b5'
-          break
-        case "Backspace":
-          triggeredKey = '\u27f5'
-          break
-        case "Equal":
-          triggeredKey =  '´'
-          break
-      }
+       switch (event.code) {
+         case 'BracketRight':
+           triggeredKey = '¨'
+           break
+         case 'Enter':
+           triggeredKey = '\u21b5'
+           break
+         case 'Backspace':
+           triggeredKey = '\u27f5'
+           break
+         case 'Equal':
+           triggeredKey = '´'
+           break
+       }
        if (this._triggerKeys.includes(triggeredKey)) {
-        
-         
          let key = this._keyboard.querySelector(`#key${triggeredKey}`)
          this.noteReleased(key, triggeredKey)
          key.style.backgroundColor = 'white'
@@ -194,7 +190,7 @@
 
      for (var pitch in noteFreq[octave]) {
        for (let i = 2; i < 8; i++) {
-         noteFreq[i][pitch] = noteFreq[i-1][pitch] * 2
+         noteFreq[i][pitch] = noteFreq[i - 1][pitch] * 2
        }
      }
 
@@ -206,8 +202,8 @@
      let keyIndex = 0
 
      this._noteFreq.forEach((keys, i1) => {
-
        if (i1 <= octave + 1 && i1 >= octave) {
+<<<<<<< HEAD
         let keyList = Object.entries(keys)
         let whiteKeys = document.createElement('div')
         let blackKeys = document.createElement('div')
@@ -230,11 +226,34 @@
         octaveElem.appendChild(whiteKeys)
         this._keyboard.appendChild(octaveElem)
        } 
+=======
+         let keyList = Object.entries(keys)
+         let whiteKeys = document.createElement('div')
+         let blackKeys = document.createElement('div')
+         let octaveElem = document.createElement('div')
+         let newKey = document.createElement('li')
+
+         octaveElem.className = 'octave'
+
+         keyList.forEach((key, i2) => {
+           if (key[0].length > 1) {
+             blackKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
+           } else {
+             whiteKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
+           }
+
+           keyIndex++
+         })
+
+         octaveElem.appendChild(blackKeys)
+         octaveElem.appendChild(whiteKeys)
+         this._keyboard.appendChild(octaveElem)
+       }
+>>>>>>> e3ddcb61931b77251546aefaf177fa44b07ad9da
      })
    }
 
    setup () {
-
      this._noteFreq = this.createNoteTable(1)
      this._masterGainNode = this._audioContext.createGain()
      this._masterGainNode.connect(this._audioContext.destination)
@@ -301,35 +320,32 @@
    }
 
    notePressed (keyElement, id, cell) {
-
      let dataset = keyElement.dataset
 
-
      if (!dataset['pressed']) {
-       if(cell){
-        let cellId = cell.getAttribute('row') + cell.getAttribute('column')
-        let row = Number(cellId[0])
+       if (cell) {
+         let cellId = cell.getAttribute('row') + cell.getAttribute('column')
+         let row = Number(cellId[0])
 
-        if(this._activeNotes[row] !== null){
-          this.noteReleased(this._activeNotes[row].keyElement, this._activeNotes[row].id, this._activeNotes[row].cellId)
-        }
+         if (this._activeNotes[row] !== null) {
+           this.noteReleased(this._activeNotes[row].keyElement, this._activeNotes[row].id, this._activeNotes[row].cellId)
+         }
 
-        this._activeNotes[row] = {
-          keyElement: keyElement,
-          id: id,
-          cellId: cellId
-        } 
-          
-        this._oscList[cellId] = this.playTone(dataset['frequency'])
+         this._activeNotes[row] = {
+           keyElement: keyElement,
+           id: id,
+           cellId: cellId
+         }
 
-        this._noteLength = Number(cell.getAttribute('noteLength'))
+         this._oscList[cellId] = this.playTone(dataset['frequency'])
 
-        setTimeout(() => {
-          this.noteReleased(keyElement, id, cellId)
-        }, this._noteLength)
-         
-       }else{
-          this._oscList[id] = this.playTone(dataset['frequency'])
+         this._noteLength = Number(cell.getAttribute('noteLength'))
+
+         setTimeout(() => {
+           this.noteReleased(keyElement, id, cellId)
+         }, this._noteLength)
+       } else {
+         this._oscList[id] = this.playTone(dataset['frequency'])
        }
 
        dataset['pressed'] = 'yes'
@@ -338,16 +354,16 @@
 
    noteReleased (keyElement, id, cellId) {
      let dataset = keyElement.dataset
-     
+
      if (dataset && dataset['pressed']) {
-       if(cellId){
-        this._oscList[cellId].stop()
-        delete this._oscList[cellId] 
-       }else{
-        this._oscList[id].stop()
-        delete this._oscList[id] 
+       if (cellId) {
+         this._oscList[cellId].stop()
+         delete this._oscList[cellId]
+       } else {
+         this._oscList[id].stop()
+         delete this._oscList[id]
        }
-        delete dataset['pressed']
+       delete dataset['pressed']
      }
    }
 

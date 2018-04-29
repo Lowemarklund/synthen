@@ -1,7 +1,11 @@
 const template = document.createElement('template')
 
+<<<<<<< HEAD
  template.innerHTML =
  
+=======
+template.innerHTML =
+>>>>>>> e3ddcb61931b77251546aefaf177fa44b07ad9da
 `<div class="synth">
     <div class="keyboard">
       <div class="settingsBar">
@@ -142,4 +146,8 @@ const template = document.createElement('template')
     </style>
 </div>
 `
+<<<<<<< HEAD
 module.exports.template = template
+=======
+module.exports.template = template
+>>>>>>> e3ddcb61931b77251546aefaf177fa44b07ad9da
