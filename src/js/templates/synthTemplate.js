@@ -1,6 +1,6 @@
 const template = document.createElement('template')
 
- template.innerHTML =
+template.innerHTML =
 `<div class="synth">
     <div class="keyboard">
       <div class="settingsBar">
