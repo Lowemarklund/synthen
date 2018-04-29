@@ -203,36 +203,10 @@
 
      this._noteFreq.forEach((keys, i1) => {
        if (i1 <= octave + 1 && i1 >= octave) {
-<<<<<<< HEAD
-        let keyList = Object.entries(keys)
-        let whiteKeys = document.createElement('div')
-        let blackKeys = document.createElement('div')
-        let octaveElem = document.createElement('div')
-        let newKey = document.createElement('li')
-
-        octaveElem.className = 'octave'
- 
-        keyList.forEach((key, i2) => {
-          if (key[0].length > 1) {
-            blackKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
-          } else {
-            whiteKeys.appendChild(this.createKey(key[0], i1, key[1], keyIndex))
-          }
- 
-          keyIndex++
-        })
- 
-        octaveElem.appendChild(blackKeys)
-        octaveElem.appendChild(whiteKeys)
-        this._keyboard.appendChild(octaveElem)
-       } 
-=======
          let keyList = Object.entries(keys)
          let whiteKeys = document.createElement('div')
          let blackKeys = document.createElement('div')
          let octaveElem = document.createElement('div')
-         let newKey = document.createElement('li')
-
          octaveElem.className = 'octave'
 
          keyList.forEach((key, i2) => {
@@ -249,7 +223,6 @@
          octaveElem.appendChild(whiteKeys)
          this._keyboard.appendChild(octaveElem)
        }
->>>>>>> e3ddcb61931b77251546aefaf177fa44b07ad9da
      })
    }
 

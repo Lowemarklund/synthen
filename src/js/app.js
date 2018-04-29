@@ -1,4 +1,3 @@
-const Synth = require('./synth')
 const Sequencer = require('./sequencer')
 
 let newSequencer = new Sequencer()

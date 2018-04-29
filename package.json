@@ -1,29 +1,17 @@
 {
-  "name": "@1dv022/examination-3",
+  "name": "@1dv430/individuelltmjukvaruprojekt",
   "version": "1.1.0",
-  "homepage": "https://coursepress.lnu.se/kurs/klientbaserad-webbprogrammering/",
+  "homepage": "https://lowemarklund.github.io/test/",
   "contributors": [
     {
-      "name": "Johan Leitet",
-      "email": "johan.leitet@lnu.se"
-    },
-    {
-      "name": "John Häggerud",
-      "email": "john.haggerud@lnu.se"
-    },
-    {
-      "name": "Mats Loock",
-      "email": "mats.loock@lnu.se"
-    },
-    {
-      "name": "Jacob Lindehoff",
-      "email": "jacob.lindehoff@lnu.se"
+      "name": "Lowe Marklund",
+      "email": "low9105@gmail.com"
     }
   ],
   "license": "CC-BY-4.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/1dv022/examination-3"
+    "url": "https://github.com/Lowemarklund/test"
   },
   "engines": {
     "node": ">=7.0.0"
@@ -34,6 +22,8 @@
   "devDependencies": {
     "css-loader": "^0.28.4",
     "file-loader": "^0.11.2",
+    "gh-pages": "^1.1.0",
+    "gh-pages-deploy": "^0.5.0",
     "standard": "*",
     "standard-loader": "^6.0.1",
     "style-loader": "^0.18.2",
@@ -44,6 +34,7 @@
   "scripts": {
     "debug": "webpack-dev-server",
     "start": "webpack-dev-server",
-    "build": "webpack"
+    "build": "webpack",
+    "deploy": "gh-pages-deploy"
   }
 }

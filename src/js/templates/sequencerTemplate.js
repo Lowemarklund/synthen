@@ -1,10 +1,7 @@
 const template = document.createElement('template')
 
 template.innerHTML =
-<<<<<<< HEAD
 
-=======
->>>>>>> e3ddcb61931b77251546aefaf177fa44b07ad9da
 `<div class="sequencer">
     <div class="logs">
         <div class="bpmLog">BPM: 150</div>
@@ -122,8 +119,4 @@ template.innerHTML =
     </style>
 </div>
 `
-<<<<<<< HEAD
 module.exports.template = template
-=======
-module.exports.template = template
->>>>>>> e3ddcb61931b77251546aefaf177fa44b07ad9da
