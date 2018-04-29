@@ -14,7 +14,8 @@
     "url": "https://github.com/Lowemarklund/test"
   },
   "engines": {
-    "node": ">=7.0.0"
+    "node": ">=7.0.0",
+    "npm": ">=5.7.1"
   },
   "dependencies": {
     "jquery": "^3.2.1"
