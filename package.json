@@ -44,7 +44,6 @@
     "debug": "webpack-dev-server",
     "start": "webpack-dev-server",
     "build": "webpack",
-    "deploy": "gh-pages-deploy",
-    "postinstall": "webpack --config ./webpack-prod.config.js --progress --colors"
+    "deploy": "gh-pages-deploy"
   }
 }
