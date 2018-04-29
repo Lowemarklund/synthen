@@ -2,6 +2,7 @@
   "name": "@1dv430/individuelltmjukvaruprojekt",
   "version": "1.1.0",
   "homepage": "https://lowemarklund.github.io/test/",
+  "main": ".src/js/build.js",
   "contributors": [
     {
       "name": "Lowe Marklund",
@@ -36,6 +37,8 @@
     "debug": "webpack-dev-server",
     "start": "webpack-dev-server",
     "build": "webpack",
-    "deploy": "gh-pages-deploy"
+    "deploy": "gh-pages-deploy",
+    "heroku-postbuild": "webpack -p --config ./webpack.prod.config.js --progress"
   }
+  
 }
