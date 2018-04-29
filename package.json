@@ -11,7 +11,7 @@
   "license": "CC-BY-4.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Lowemarklund/test"
+    "url": "https://github.com/Lowemarklund/test.git"
   },
   "engines": {
     "node": ">=7.0.0"
@@ -43,8 +43,9 @@
   "scripts": {
     "debug": "webpack-dev-server",
     "start": "webpack-dev-server",
-    "build": "webpack",
+    "build:development": "webpack --config ./webpack.config.js --env=development --progress --profile --colors",
+    "build:production": "webpack --config ./webpack-production.config.js --env=production --progress --profile --colors",
     "deploy": "gh-pages-deploy",
-    "postinstall": "webpack --config ./webpack-prod.config.js --progress --colors"
+    "postinstall": "webpack --config ./webpack-production.config.js --progress --colors"
   }
 }
