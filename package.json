@@ -15,8 +15,7 @@
     "url": "https://github.com/Lowemarklund/test"
   },
   "engines": {
-    "node": ">=7.0.0",
-    "npm": ">=5.7.1"
+    "node": ">=7.0.0"
   },
   "dependencies": {
     "jquery": "^3.2.1"
@@ -37,8 +36,7 @@
     "debug": "webpack-dev-server",
     "start": "webpack-dev-server",
     "build": "webpack",
-    "deploy": "gh-pages-deploy",
-    "heroku-postbuild": "webpack -p --config ./webpack.prod.config.js --progress"
+    "deploy": "gh-pages-deploy"
   }
   
 }
