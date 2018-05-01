@@ -30,10 +30,15 @@
      this._synth = this.shadowRoot.querySelector('.synth')
      this._keyboard = this.shadowRoot.querySelector('.keyboard')
      this._newKeyboard = this.shadowRoot.querySelector('.newKeyboard')
-     this._wavePicker = this.shadowRoot.querySelector("select[name='waveform']")
+     this._carrierWavePicker = this.shadowRoot.querySelector("select[name='waveform']")
+     this._modulatorWavePicker = this.shadowRoot.querySelector("select[name='waveform2']")
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
+     this._carrierGain = this.shadowRoot.querySelector("input[name='carrierGain']")
+     this._modulationFreqControl = this.shadowRoot.querySelector("input[name='modulationFreq']")
+     this._modulationDepthControl = this.shadowRoot.querySelector("input[name='modulationDepth']")
      this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
+     this._out = this._audioContext.destination
      this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '0', 'å', '´', '¨', '\u27f5', '\u21b5']
      this._oscList = {}
      this._masterGainNode = null
@@ -229,7 +234,7 @@
    setup () {
      this._noteFreq = this.createNoteTable(1)
      this._masterGainNode = this._audioContext.createGain()
-     this._masterGainNode.connect(this._audioContext.destination)
+     this._masterGainNode.connect(this._out)
      this._masterGainNode.gain.value = this._volumeControl.value
      this._noteLength = 500
 
@@ -275,21 +280,43 @@
    }
 
    playTone (freq) {
-     let osc = this._audioContext.createOscillator()
-     osc.connect(this._masterGainNode)
+     let carrier = this._audioContext.createOscillator() 
+     let modulator = this._audioContext.createOscillator()
+     let carrierGain = this._audioContext.createGain()
+     let modulatorGain = this._audioContext.createGain()
 
-     let type = this._wavePicker.options[this._wavePicker.selectedIndex].value
+     carrierGain.gain.value = this._carrierGain.value
+     modulatorGain.gain.value = this._modulationDepthControl.value
+     modulator.frequency.value = this._modulationFreqControl.value
+     
+
+     carrier.connect(carrierGain)
+     carrier.connect(this._masterGainNode)
+     carrierGain.connect(modulator.frequency)
+     modulator.connect(modulatorGain)
+     modulatorGain.connect(this._masterGainNode)
+
+
+     if(this._modulationDepthControl.value === "0"){
+    
+    }
+
+     let type = this._carrierWavePicker.options[this._carrierWavePicker.selectedIndex].value
+     let type2 = this._modulatorWavePicker.options[this._modulatorWavePicker.selectedIndex].value
 
      if (type === 'custom') {
-       osc.setPeriodicWave(this._customWaveform)
+       carrier.setPeriodicWave(this._customWaveform)
      } else {
-       osc.type = type
+       carrier.type = type
+       modulator.type = type2
      }
 
-     osc.frequency.value = freq
-     osc.start()
+     carrier.frequency.value = freq
+    
+     carrier.start()
+     modulator.start()
 
-     return osc
+     return [carrier, modulator]
    }
 
    notePressed (keyElement, id, cell) {
@@ -330,10 +357,12 @@
 
      if (dataset && dataset['pressed']) {
        if (cellId) {
-         this._oscList[cellId].stop()
+         this._oscList[cellId][0].stop()
+         this._oscList[cellId][1].stop()
          delete this._oscList[cellId]
        } else {
-         this._oscList[id].stop()
+        this._oscList[id][0].stop()
+        this._oscList[id][1].stop()
          delete this._oscList[id]
        }
        delete dataset['pressed']

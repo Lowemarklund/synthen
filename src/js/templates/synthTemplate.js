@@ -16,24 +16,52 @@ template.innerHTML =
             <option value="1.0" label="100%">
           </datalist>
         </div>
+        <div class="modulationInput">
+        <div class="carrierGain">
+        <span>Carrier Gain: </span>
+        <input type="range" min="0" max="3000" step="1"
+            value="1" list="carrierGain" name="carrierGain">
+          <span>Modulation Freq: </span>
+          <input type="range" min="1" max="1500" step="1"
+              value="750" list="modulationFreq" name="modulationFreq">
+          <span>Modulation Depth: </span>
+          <input type="range" min="0" max="1" step="0.01"
+              value="0" list="modulationDepth" name="modulationDepth">
+        </div>
         <div class="right">
-          <span>Current waveform: </span>
+          <span>Carrier waveform: </span>
           <select name="waveform">
             <option value="sine">Sine</option>
             <option value="square" selected>Square</option>
             <option value="sawtooth">Sawtooth</option>
             <option value="triangle">Triangle</option>
           </select>
-          <span>Current octave: </span>
-          <select name="octave">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
+          <span> Mod1 waveform: </span>
+          <select name="waveform2">
+            <option value="sine">Sine</option>
+            <option value="square" selected>Square</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="triangle">Triangle</option>
           </select>
+          <span> Mod2 waveform: </span>
+          <select name="waveform3">
+            <option value="sine">Sine</option>
+            <option value="square" selected>Square</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="triangle">Triangle</option>
+          </select>
+        </div>
+        <div class="octave">
+        <span>Keyboard octave: </span>
+        <select name="octave">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
         </div>
     </div>
   </div>
@@ -98,12 +126,14 @@ template.innerHTML =
 
       
       .octave {
+        margin-top: 10px;
         display: inline-block;
-        padding: 0 6px 0 0;
+
       }
       
       .settingsBar {
         margin-bottom: 20px;
+        margin-left: 700px;
         padding: 20px;
         font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
         position: flexible;
@@ -112,12 +142,12 @@ template.innerHTML =
         height: 30px;
       }
       .right {
-        margin: 10px;
-        text-align: center;
+        margin-top: 10px;
+        text-align: left;
       }
 
       .volumeInput{
-        text-align: center;
+        text-align: left;
       }
 
       .sharpKey {
@@ -140,6 +170,10 @@ template.innerHTML =
         background-color: black;
         color: white;
         margin-left: 20px;
+      }
+
+      .modulationInput{
+        text-align: left;
       }
     </style>
 </div>
