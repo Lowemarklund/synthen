@@ -41,7 +41,7 @@
      this._modulation2FreqControl = this.shadowRoot.querySelector("input[name='modulation2Freq']")
      this._modulation2DepthControl = this.shadowRoot.querySelector("input[name='modulation2Depth']")
      this._lfoFrequency = this.shadowRoot.querySelector("input[name='lfoFreq']")
-     this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
+     this._audioContext = Pizzicato.context
      this._out = this._audioContext.destination
      this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '0', 'å', '´', '¨', '\u27f5', '\u21b5']
      this._oscList = {}
@@ -301,6 +301,7 @@
      modulator2Gain.gain.value = this._modulation2DepthControl.value
      modulator2.frequency.value = this._modulation2FreqControl.value
 
+      //frequency modulation connections
      carrier.connect(carrierGain)
      carrier.connect(this._masterGainNode)
      carrierGain.connect(modulator.frequency)
@@ -309,6 +310,14 @@
      carrierGain.connect(modulator2.frequency)
      modulator2.connect(modulator2Gain)
      modulator2Gain.connect(this._masterGainNode)
+      
+     let oscillator = Pizzicato.context.createOscillator();
+     let distortion = new Pizzicato.Effects.Distortion();
+     let analyser = Pizzicato.context.createAnalyser();
+     
+     oscillator.connect(distortion);
+     distortion.connect(analyser);
+
 
      let type = this._carrierWavePicker.options[this._carrierWavePicker.selectedIndex].value
      let type2 = this._modulatorWavePicker.options[this._modulatorWavePicker.selectedIndex].value
