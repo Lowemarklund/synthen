@@ -35,7 +35,7 @@
      this._modulator2WavePicker = this.shadowRoot.querySelector("select[name='waveform3']")
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
-     this._carrierGain = this.shadowRoot.querySelector("input[name='carrierGain']")
+     this._carrierGainControl = this.shadowRoot.querySelector("input[name='carrierGain']")
      this._modulationFreqControl = this.shadowRoot.querySelector("input[name='modulationFreq']")
      this._modulationDepthControl = this.shadowRoot.querySelector("input[name='modulationDepth']")
      this._modulation2FreqControl = this.shadowRoot.querySelector("input[name='modulation2Freq']")
@@ -43,11 +43,18 @@
      this._lfoFrequency = this.shadowRoot.querySelector("input[name='lfoFreq']")
      this._audioContext = Pizzicato.context
      this._out = this._audioContext.destination
-     this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '0', 'å', '´', '¨', '\u27f5', '\u21b5']
-     this._oscList = {}
+     this._effectsGainNode = this._audioContext.createGain()
      this._masterGainNode = null
+     this._delay = null
+     this._reverb = null
+     this._flanger = null
+     this._tremolo = null
+     this._ringModulator = null
+     this._lowPassFilter = null
+     this._lowPassFilter = null
+     this._analyser = null
+     this._oscList = {}
      this._noteFreq = null
-     this._customWaveform = null
      this._sineTerms = null
      this._cosineTerms = null
      this._sequencer = null
@@ -61,6 +68,7 @@
        7: null,
        8: null
      }
+     this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '0', 'å', '´', '¨', '\u27f5', '\u21b5']
    }
 
   /**
@@ -251,6 +259,8 @@
      this._sineTerms = new Float32Array([0, 0, 1, 0, 1])
      this._cosineTerms = new Float32Array(this._sineTerms.length)
      this._customWaveform = this._audioContext.createPeriodicWave(this._cosineTerms, this._sineTerms)
+
+     this.effectsRouting()
    }
 
    createKey (note, octave, freq, keyIndex) {
@@ -288,36 +298,26 @@
    }
 
    playTone (freq) {
-     let carrier = this._audioContext.createOscillator() 
+     let carrier = this._audioContext.createOscillator()
      let modulator = this._audioContext.createOscillator()
      let modulator2 = this._audioContext.createOscillator()
      let carrierGain = this._audioContext.createGain()
      let modulatorGain = this._audioContext.createGain()
      let modulator2Gain = this._audioContext.createGain()
 
-     carrierGain.gain.value = this._carrierGain.value
+     carrierGain.gain.value = this._carrierGainControl.value
      modulatorGain.gain.value = this._modulationDepthControl.value
      modulator.frequency.value = this._modulationFreqControl.value
      modulator2Gain.gain.value = this._modulation2DepthControl.value
      modulator2.frequency.value = this._modulation2FreqControl.value
 
-      //frequency modulation connections
+      // frequency modulation routing
      carrier.connect(carrierGain)
-     carrier.connect(this._masterGainNode)
      carrierGain.connect(modulator.frequency)
      modulator.connect(modulatorGain)
-     modulatorGain.connect(this._masterGainNode)
      carrierGain.connect(modulator2.frequency)
      modulator2.connect(modulator2Gain)
-     modulator2Gain.connect(this._masterGainNode)
-      
-     let oscillator = Pizzicato.context.createOscillator();
-     let distortion = new Pizzicato.Effects.Distortion();
-     let analyser = Pizzicato.context.createAnalyser();
-     
-     oscillator.connect(distortion);
-     distortion.connect(analyser);
-
+     modulator2.connect(this._effectsGainNode)
 
      let type = this._carrierWavePicker.options[this._carrierWavePicker.selectedIndex].value
      let type2 = this._modulatorWavePicker.options[this._modulatorWavePicker.selectedIndex].value
@@ -332,7 +332,7 @@
      }
 
      carrier.frequency.value = freq
-    
+
      carrier.start()
      modulator.start()
      modulator2.start()
@@ -378,14 +378,14 @@
 
      if (dataset && dataset['pressed']) {
        if (cellId) {
-        this._oscList[cellId].forEach(osc => {
-          osc.stop()
-        });
+         this._oscList[cellId].forEach(osc => {
+           osc.stop()
+         })
          delete this._oscList[cellId]
        } else {
-        this._oscList[id].forEach(osc => {
-          osc.stop()
-        });
+         this._oscList[id].forEach(osc => {
+           osc.stop()
+         })
          delete this._oscList[id]
        }
        delete dataset['pressed']
@@ -398,7 +398,75 @@
 
    changeLfoFreq () {
 
-  }
+   }
+
+   oscillatorRouting () {
+     modulator2Gain.gain.value = this._modulation2DepthControl.value
+     modulator2.frequency.value = this._modulation2FreqControl.value
+     this._carrier.connect(carrierGain)
+     this._carrierGainControl.connect(modulator.frequency)
+     this._modulator.connect(modulatorGain)
+     this._carrierGainControl.connect(modulator2.frequency)
+     this._modulator2.connect(modulator2Gain)
+   }
+
+   effectsRouting () {
+     this._effectsGainNode.gain.value = 1
+     this._analyser = this._audioContext.createAnalyser()
+
+     this._delay = new Pizzicato.Effects.Delay({
+       feedback: 0,
+       time: 0,
+       mix: 0
+     })
+
+     this._flanger = new Pizzicato.Effects.Flanger({
+       time: 0,
+       speed: 0,
+       depth: 0,
+       feedback: 0,
+       mix: 0
+     })
+
+     this._reverb = new Pizzicato.Effects.Reverb({
+       time: 0,
+       decay: 0,
+       reverse: false,
+       mix: 0
+     })
+
+     this._tremolo = new Pizzicato.Effects.Tremolo({
+       speed: 0,
+       depth: 0,
+       mix: 0
+     })
+
+     this._lowPassFilter = new Pizzicato.Effects.LowPassFilter({
+       frequency: 0,
+       peak: 0
+     })
+
+     this._highPassFilter = new Pizzicato.Effects.HighPassFilter({
+       frequency: 0,
+       peak: 0
+     })
+
+     this._ringModulator = new Pizzicato.Effects.RingModulator({
+       speed: 0,
+       distortion: 0,
+       mix: 0
+     })
+
+     this._effectsGainNode.connect(this._flanger)
+     this._flanger.connect(this._tremolo)
+     this._tremolo.connect(this._ringModulator)
+     this._ringModulator.connect(this._delay)
+   // this._lowPassFilter.connect(this._highPassFilter)
+   // this._highPassFilter.connect(this._delay)
+     this._delay.connect(this._reverb)
+     this._reverb.connect(this._analyser)
+     this._analyser.connect(this._masterGainNode)
+   }
 }
 
  window.customElements.define('synth-element', Synth)
