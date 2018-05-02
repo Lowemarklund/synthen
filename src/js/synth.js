@@ -40,24 +40,14 @@
      this._modulationDepthControl = this.shadowRoot.querySelector("input[name='modulationDepth']")
      this._modulation2FreqControl = this.shadowRoot.querySelector("input[name='modulation2Freq']")
      this._modulation2DepthControl = this.shadowRoot.querySelector("input[name='modulation2Depth']")
+     this._flangerControl = this.shadowRoot.querySelector('#flanger')
+     this._tremoloControl = this.shadowRoot.querySelector('#tremolo')
+     this._reverbControl = this.shadowRoot.querySelector('#reverb')
      this._lfoFrequency = this.shadowRoot.querySelector("input[name='lfoFreq']")
      this._audioContext = Pizzicato.context
      this._out = this._audioContext.destination
      this._effectsGainNode = this._audioContext.createGain()
-     this._masterGainNode = null
-     this._delay = null
-     this._reverb = null
-     this._flanger = null
-     this._tremolo = null
-     this._ringModulator = null
-     this._lowPassFilter = null
-     this._lowPassFilter = null
-     this._analyser = null
      this._oscList = {}
-     this._noteFreq = null
-     this._sineTerms = null
-     this._cosineTerms = null
-     this._sequencer = null
      this._activeNotes = {
        1: null,
        2: null,
@@ -128,6 +118,22 @@
      this._lfoFrequency.addEventListener('change', () => {
        this.changeLfoFreq()
      })
+
+     this._flangerControl.onchange = (event) => {
+       this._flanger.options[event.target.name] = Number(event.target.value)
+       this.effectsRouting(false)
+     }
+
+     this._tremoloControl.onchange = (event) => {
+       this._tremolo.options[event.target.name] = Number(event.target.value)
+       this.effectsRouting(false)
+     }
+
+     this._reverbControl.onchange = (event) => {
+       this._reverb.options[event.target.name] = Number(event.target.value)
+       console.log(this._reverb)
+       this.effectsRouting(false)
+     }
 
      window.addEventListener('keydown', event => {
        if (document.activeElement !== this._sequencer) {
@@ -260,7 +266,7 @@
      this._cosineTerms = new Float32Array(this._sineTerms.length)
      this._customWaveform = this._audioContext.createPeriodicWave(this._cosineTerms, this._sineTerms)
 
-     this.effectsRouting()
+     this.effectsRouting(true)
    }
 
    createKey (note, octave, freq, keyIndex) {
@@ -313,11 +319,13 @@
 
       // frequency modulation routing
      carrier.connect(carrierGain)
+     carrier.connect(this._effectsGainNode)
      carrierGain.connect(modulator.frequency)
      modulator.connect(modulatorGain)
+     modulatorGain.connect(this._effectsGainNode)
      carrierGain.connect(modulator2.frequency)
      modulator2.connect(modulator2Gain)
-     modulator2.connect(this._effectsGainNode)
+     modulator2Gain.connect(this._effectsGainNode)
 
      let type = this._carrierWavePicker.options[this._carrierWavePicker.selectedIndex].value
      let type2 = this._modulatorWavePicker.options[this._modulatorWavePicker.selectedIndex].value
@@ -410,36 +418,76 @@
      this._modulator2.connect(modulator2Gain)
    }
 
-   effectsRouting () {
+   effectsRouting (defaultSettings) {
+     let effectOptionObj
+     let oldReverb
+     let oldFlanger
+     let oldTremolo
+     let oldDelay
+     let oldRingModulator
+
+     if (this._analyser) {
+       oldReverb = this._reverb
+       oldFlanger = this._flanger
+       oldTremolo = this._tremolo
+       oldDelay = this._delay
+       oldRingModulator = this._delay
+     }
+
+     if (defaultSettings === false) {
+       effectOptionObj = {
+         flanger: this._flanger.options,
+         delay: this._delay.options,
+         reverb: this._reverb.options,
+         tremolo: this._tremolo.options,
+         ringmodulator: this._ringModulator.options
+       }
+     }
+     if (defaultSettings === true) {
+       effectOptionObj = {
+         delay: {
+           feedback: 0,
+           time: 0,
+           mix: 0
+         },
+         flanger: {
+           time: 0,
+           speed: 0,
+           depth: 0,
+           feedback: 0,
+           mix: 0
+         },
+         reverb: {
+           time: 0,
+           decay: 0,
+           reverse: false,
+           mix: 0
+         },
+         tremolo: {
+           speed: 0,
+           depth: 0,
+           mix: 0
+         },
+         ringmodulator:
+         {
+           speed: 0,
+           distortion: 0,
+           mix: 0
+         }
+       }
+     }
+
      this._effectsGainNode.gain.value = 1
+
      this._analyser = this._audioContext.createAnalyser()
 
-     this._delay = new Pizzicato.Effects.Delay({
-       feedback: 0,
-       time: 0,
-       mix: 0
-     })
+     this._delay = new Pizzicato.Effects.Delay(effectOptionObj.delay)
 
-     this._flanger = new Pizzicato.Effects.Flanger({
-       time: 0,
-       speed: 0,
-       depth: 0,
-       feedback: 0,
-       mix: 0
-     })
+     this._flanger = new Pizzicato.Effects.Flanger(effectOptionObj.flanger)
 
-     this._reverb = new Pizzicato.Effects.Reverb({
-       time: 0,
-       decay: 0,
-       reverse: false,
-       mix: 0
-     })
+     this._reverb = new Pizzicato.Effects.Reverb(effectOptionObj.reverb)
 
-     this._tremolo = new Pizzicato.Effects.Tremolo({
-       speed: 0,
-       depth: 0,
-       mix: 0
-     })
+     this._tremolo = new Pizzicato.Effects.Tremolo(effectOptionObj.tremolo)
 
      this._lowPassFilter = new Pizzicato.Effects.LowPassFilter({
        frequency: 0,
@@ -451,11 +499,7 @@
        peak: 0
      })
 
-     this._ringModulator = new Pizzicato.Effects.RingModulator({
-       speed: 0,
-       distortion: 0,
-       mix: 0
-     })
+     this._ringModulator = new Pizzicato.Effects.RingModulator(effectOptionObj.ringmodulator)
 
      this._effectsGainNode.connect(this._flanger)
      this._flanger.connect(this._tremolo)
@@ -466,6 +510,14 @@
      this._delay.connect(this._reverb)
      this._reverb.connect(this._analyser)
      this._analyser.connect(this._masterGainNode)
+
+     if (oldReverb !== undefined) {
+       oldReverb.disconnect()
+       oldFlanger.disconnect()
+       oldDelay.disconnect()
+       oldRingModulator.disconnect()
+       oldTremolo.disconnect()
+     }
    }
 }
 

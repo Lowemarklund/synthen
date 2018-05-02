@@ -74,6 +74,68 @@ template.innerHTML =
             <option value="7">7</option>
           </select>
         </div>
+        <div class="effectSettings"
+          <div class="effect" id="flanger">
+          <span>Flanger </span>
+          <br>
+          <span>Time: </span>
+          <input type="range" min="0.0" max="1.0" step="0.01"
+              value="0" list="flangerTime" name="time">
+          <br>
+          <span>Depth: </span>
+          <input type="range" min="0.0" max="1.0" step="0.01"
+              value="0" list="flangerDepth" name="depth">
+          <br>
+          <span>Speed: </span>
+          <input type="range" min="0.0" max="1.0" step="0.01"
+              value="0" list="flangerSpeed" name="speed">
+          <br>
+          <span>Feedback: </span>
+          <input type="range" min="0.0" max="1.0" step="0.01"
+              value="0" list="flangerFeedBack" name="feedback">
+          <br>
+          <span>Mix: </span>
+          <input type="range" min="0.0" max="1.0" step="0.01"
+              value="0" list="flangerMix" name="mix">
+          </div>
+
+
+
+          <div class="effect" id="tremolo">
+          <span>Tremolo </span>
+          <br>
+          <span>Depth: </span>
+          <input type="range" min="0.0" max="20" step="0.01"
+              value="0" list="tremoloDepth" name="depth">
+          <br>
+          <span>Speed: </span>
+          <input type="range" min="0.0" max="1000" step="1"
+              value="0" list="tremoloSpeed" name="speed">
+          <br>
+          <span>Mix: </span>
+          <input type="range" min="0.0" max="1.0" step="0.01"
+              value="0" list="tremoloMix" name="mix">
+          </div>   
+
+
+
+          <div class="effect" id="reverb">
+          <span>Reverb </span>
+          <br>
+          <span>time: </span>
+          <input type="range" min="0.0" max="3" step="0.01"
+              value="0" list="reverbTime" name="time">
+          <br>
+          <span>Decay: </span>
+          <input type="range" min="0.0" max="1" step="0.01"
+              value="0" list="reverbDecay" name="decay">
+          <br>
+          <span>Mix: </span>
+          <input type="range" min="0.0" max="1" step="0.01"
+              value="0" list="reverbMix" name="mix">
+          <br>
+          </div>
+        </div>
     </div>
   </div>
   <div>
@@ -143,7 +205,7 @@ template.innerHTML =
       }
       
       .settingsBar {
-        margin-bottom: 20px;
+        margin-bottom: 200px;
         margin-left: 700px;
         padding: 20px;
         font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
@@ -190,6 +252,16 @@ template.innerHTML =
       .lfoFreq{
         text-align: left;
         margin-top: 10px;
+      }
+
+      .effectSettings {
+        margin-top: 20px;
+        
+      }
+
+      .effect {
+        margin-top: 20px;
+        display: inline-block;
       }
     </style>
 </div>
