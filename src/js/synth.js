@@ -32,11 +32,15 @@
      this._newKeyboard = this.shadowRoot.querySelector('.newKeyboard')
      this._carrierWavePicker = this.shadowRoot.querySelector("select[name='waveform']")
      this._modulatorWavePicker = this.shadowRoot.querySelector("select[name='waveform2']")
+     this._modulator2WavePicker = this.shadowRoot.querySelector("select[name='waveform3']")
      this._octavePicker = this.shadowRoot.querySelector("select[name='octave']")
      this._volumeControl = this.shadowRoot.querySelector("input[name='volume']")
      this._carrierGain = this.shadowRoot.querySelector("input[name='carrierGain']")
      this._modulationFreqControl = this.shadowRoot.querySelector("input[name='modulationFreq']")
      this._modulationDepthControl = this.shadowRoot.querySelector("input[name='modulationDepth']")
+     this._modulation2FreqControl = this.shadowRoot.querySelector("input[name='modulation2Freq']")
+     this._modulation2DepthControl = this.shadowRoot.querySelector("input[name='modulation2Depth']")
+     this._lfoFrequency = this.shadowRoot.querySelector("input[name='lfoFreq']")
      this._audioContext = new (window.AudioContext || window.webkitAudioContext)()
      this._out = this._audioContext.destination
      this._triggerKeys = ['Tab', '1', 'q', '2', 'w', 'e', '4', 'r', '5', 't', '6', 'y', 'u', '8', 'i', '9', 'o', 'p', '0', 'å', '´', '¨', '\u27f5', '\u21b5']
@@ -112,6 +116,10 @@
      this._volumeControl.addEventListener('change', () => {
        this.changeVolume()
      }, false)
+
+     this._lfoFrequency.addEventListener('change', () => {
+       this.changeLfoFreq()
+     })
 
      window.addEventListener('keydown', event => {
        if (document.activeElement !== this._sequencer) {
@@ -282,41 +290,45 @@
    playTone (freq) {
      let carrier = this._audioContext.createOscillator() 
      let modulator = this._audioContext.createOscillator()
+     let modulator2 = this._audioContext.createOscillator()
      let carrierGain = this._audioContext.createGain()
      let modulatorGain = this._audioContext.createGain()
+     let modulator2Gain = this._audioContext.createGain()
 
      carrierGain.gain.value = this._carrierGain.value
      modulatorGain.gain.value = this._modulationDepthControl.value
      modulator.frequency.value = this._modulationFreqControl.value
-     
+     modulator2Gain.gain.value = this._modulation2DepthControl.value
+     modulator2.frequency.value = this._modulation2FreqControl.value
 
      carrier.connect(carrierGain)
      carrier.connect(this._masterGainNode)
      carrierGain.connect(modulator.frequency)
      modulator.connect(modulatorGain)
      modulatorGain.connect(this._masterGainNode)
-
-
-     if(this._modulationDepthControl.value === "0"){
-    
-    }
+     carrierGain.connect(modulator2.frequency)
+     modulator2.connect(modulator2Gain)
+     modulator2Gain.connect(this._masterGainNode)
 
      let type = this._carrierWavePicker.options[this._carrierWavePicker.selectedIndex].value
      let type2 = this._modulatorWavePicker.options[this._modulatorWavePicker.selectedIndex].value
+     let type3 = this._modulator2WavePicker.options[this._modulator2WavePicker.selectedIndex].value
 
      if (type === 'custom') {
        carrier.setPeriodicWave(this._customWaveform)
      } else {
        carrier.type = type
        modulator.type = type2
+       modulator2.type = type3
      }
 
      carrier.frequency.value = freq
     
      carrier.start()
      modulator.start()
+     modulator2.start()
 
-     return [carrier, modulator]
+     return [carrier, modulator, modulator2]
    }
 
    notePressed (keyElement, id, cell) {
@@ -357,12 +369,14 @@
 
      if (dataset && dataset['pressed']) {
        if (cellId) {
-         this._oscList[cellId][0].stop()
-         this._oscList[cellId][1].stop()
+        this._oscList[cellId].forEach(osc => {
+          osc.stop()
+        });
          delete this._oscList[cellId]
        } else {
-        this._oscList[id][0].stop()
-        this._oscList[id][1].stop()
+        this._oscList[id].forEach(osc => {
+          osc.stop()
+        });
          delete this._oscList[id]
        }
        delete dataset['pressed']
@@ -372,6 +386,10 @@
    changeVolume () {
      this._masterGainNode.gain.value = this._volumeControl.value
    }
+
+   changeLfoFreq () {
+
+  }
 }
 
  window.customElements.define('synth-element', Synth)

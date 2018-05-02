@@ -16,17 +16,25 @@ template.innerHTML =
             <option value="1.0" label="100%">
           </datalist>
         </div>
-        <div class="modulationInput">
-        <div class="carrierGain">
         <span>Carrier Gain: </span>
         <input type="range" min="0" max="3000" step="1"
             value="1" list="carrierGain" name="carrierGain">
-          <span>Modulation Freq: </span>
+        <div class="modulationInput">
+            <span>Modulation Freq: </span>
+            <input type="range" min="1" max="1500" step="1"
+                value="750" list="modulationFreq" name="modulationFreq">
+            <span>Modulation Depth: </span>
+            <input type="range" min="0" max="1" step="0.01"
+                value="0" list="modulationDepth" name="modulationDepth">
+        </div>
+        <div class="modulationInput">
+          <span>Modulation 2 Freq: </span>
           <input type="range" min="1" max="1500" step="1"
-              value="750" list="modulationFreq" name="modulationFreq">
-          <span>Modulation Depth: </span>
+              value="750" list="modulation2Freq" name="modulation2Freq">
+          <span>Modulation 2 Depth: </span>
           <input type="range" min="0" max="1" step="0.01"
-              value="0" list="modulationDepth" name="modulationDepth">
+              value="0" list="modulation2Depth" name="modulation2Depth">
+          
         </div>
         <div class="right">
           <span>Carrier waveform: </span>
@@ -51,17 +59,20 @@ template.innerHTML =
             <option value="triangle">Triangle</option>
           </select>
         </div>
-        <div class="octave">
-        <span>Keyboard octave: </span>
-        <select name="octave">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3" selected>3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-        </select>
+        <div class="lfoFreq">
+          <span>Lfo freq: </span>
+          <input type="range" min="0" max="1" step="0.01"
+          value="1" list="lfoFreq" name="lfoFreq">
+          <span>Keyboard octave: </span>
+          <select name="octave">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+          </select>
         </div>
     </div>
   </div>
@@ -174,6 +185,11 @@ template.innerHTML =
 
       .modulationInput{
         text-align: left;
+      }
+
+      .lfoFreq{
+        text-align: left;
+        margin-top: 10px;
       }
     </style>
 </div>
