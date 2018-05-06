@@ -9,6 +9,7 @@
  'use strict'
 
  const SynthTemplate = require('./templates/synthTemplate')
+ const Pizzicato = require('./Pizzicato.js')
  const template = SynthTemplate.template
 
 /**
@@ -406,16 +407,6 @@
 
    changeLfoFreq () {
 
-   }
-
-   oscillatorRouting () {
-     modulator2Gain.gain.value = this._modulation2DepthControl.value
-     modulator2.frequency.value = this._modulation2FreqControl.value
-     this._carrier.connect(carrierGain)
-     this._carrierGainControl.connect(modulator.frequency)
-     this._modulator.connect(modulatorGain)
-     this._carrierGainControl.connect(modulator2.frequency)
-     this._modulator2.connect(modulator2Gain)
    }
 
    effectsRouting (defaultSettings) {

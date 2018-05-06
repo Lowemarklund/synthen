@@ -317,7 +317,7 @@ class Sequencer extends window.HTMLElement {
         } else {
           this._sequencer.style.width = '500px'
         }
-        return
+        return this._grid
       }
     }
   }
