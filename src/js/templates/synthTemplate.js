@@ -59,21 +59,7 @@ template.innerHTML =
             <option value="triangle">Triangle</option>
           </select>
         </div>
-        <div class="lfoFreq">
-          <span>Lfo freq: </span>
-          <input type="range" min="0" max="1" step="0.01"
-          value="1" list="lfoFreq" name="lfoFreq">
-          <span>Keyboard octave: </span>
-          <select name="octave">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-          </select>
-        </div>
+       
         <div class="effectSettings"
           <div class="effect" id="flanger">
           <span>Flanger </span>
@@ -99,8 +85,6 @@ template.innerHTML =
               value="0" list="flangerMix" name="mix">
           </div>
 
-
-
           <div class="effect" id="tremolo">
           <span>Tremolo </span>
           <br>
@@ -116,8 +100,6 @@ template.innerHTML =
           <input type="range" min="0.0" max="1.0" step="0.01"
               value="0" list="tremoloMix" name="mix">
           </div>   
-
-
 
           <div class="effect" id="reverb">
           <span>Reverb </span>
@@ -135,6 +117,7 @@ template.innerHTML =
               value="0" list="reverbMix" name="mix">
           <br>
           </div>
+          
         </div>
     </div>
   </div>
@@ -142,16 +125,16 @@ template.innerHTML =
 <div>
     <style>
       .synth {
-        width: 500px;
         height: 110px;
         white-space: nowrap;
         margin-left: 10px;
     
       }
       .keyboard {
-        width: auto;
+        height: 100px;
         padding: 10px;
         margin: 20px;
+        position: relative;
        
       }
       
@@ -205,14 +188,14 @@ template.innerHTML =
       }
       
       .settingsBar {
-        margin-bottom: 200px;
-        margin-left: 700px;
+        float: right;
+        margin: 20px;
+        margin-top: -100px;
         padding: 20px;
         font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
         position: flexible;
-        vertical-align: middle;
-        width: 100%;
-        height: 30px;
+        height: auto;
+        width: auto;
       }
       .right {
         margin-top: 10px;
@@ -266,5 +249,21 @@ template.innerHTML =
     </style>
 </div>
 `
+
+{/* <div class="lfoFreq">
+<span>Lfo freq: </span>
+<input type="range" min="0" max="1" step="0.01"
+value="1" list="lfoFreq" name="lfoFreq">
+<span>Keyboard octave: </span>
+<select name="octave">
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3" selected>3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="7">7</option>
+</select>
+</div> */}
 
 module.exports.template = template
