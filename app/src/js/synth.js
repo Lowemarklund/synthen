@@ -116,9 +116,9 @@
        this.changeVolume()
      }, false)
 
-     this._lfoFrequency.addEventListener('change', () => {
-       this.changeLfoFreq()
-     })
+    //  this._lfoFrequency.addEventListener('change', () => {
+    //    this.changeLfoFreq()
+    //  })
 
      this._flangerControl.onchange = (event) => {
        this._flanger.options[event.target.name] = Number(event.target.value)

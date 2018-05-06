@@ -1,52 +1,42 @@
 {
-  "name": "@1dv430/individuelltmjukvaruprojekt",
-  "version": "1.1.0",
-  "homepage": "https://lowemarklund.github.io/test/",
-  "contributors": [
-    {
-      "name": "Lowe Marklund",
-      "email": "low9105@gmail.com"
-    }
-  ],
-  "license": "CC-BY-4.0",
+  "name": "webpack2-express-heroku-starter",
+  "version": "0.1.0",
+  "description": "Starter webpack 2/express app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Lowemarklund/test.git"
+    "url": "git://github.com/tublitzed/webpack2-express-heroku-starter.git"
   },
-  "engines": {
-    "node": ">=7.0.0"
-  },
+  "author": "Rachel Tublitz",
+  "license": "MIT",
   "dependencies": {
-    "jquery": "^3.2.1",
-    "css-loader": "^0.28.4",
-    "file-loader": "^0.11.2",
-    "gh-pages": "^1.1.0",
-    "gh-pages-deploy": "^0.5.0",
-    "standard": "*",
-    "standard-loader": "^6.0.1",
-    "style-loader": "^0.18.2",
-    "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.5.0"
+    "css-loader": "^0.28.0",
+    "express": "^4.14.1",
+    "html-webpack-plugin": "^2.28.0",
+    "node-sass": "^4.5.2",
+    "sass-loader": "^6.0.3",
+    "style-loader": "^0.16.1",
+    "webpack": "^2.2.1",
+    "webpack-dev-middleware": "^1.10.0",
+    "webpack-hot-middleware": "^2.16.1"
   },
   "devDependencies": {
-    "css-loader": "^0.28.4",
-    "file-loader": "^0.11.2",
-    "gh-pages": "^1.1.0",
-    "gh-pages-deploy": "^0.5.0",
-    "pizzicato": "^0.6.3",
-    "standard": "*",
-    "standard-loader": "^6.0.1",
-    "style-loader": "^0.18.2",
-    "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.5.0"
+    "babel-cli": "^6.22.2",
+    "babel-preset-latest": "^6.22.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.9.0"
   },
-  "bin": {},
+  "engines": {
+    "node": "7.10.1"
+  },
   "scripts": {
-    "debug": "webpack-dev-server",
-    "start": "webpack-dev-server",
-    "build:development": "webpack --config ./webpack.config.js --env=development --progress --profile --colors",
-    "build:production": "webpack --config ./webpack-production.config.js --env=production --progress --profile --colors",
-    "deploy": "gh-pages-deploy",
-    "postinstall": "webpack --config ./webpack-production.config.js --progress --colors"
+    "build:development": "webpack --config ./config/webpack.config.js --env=development --progress --profile --colors",
+    "build:production": "webpack --config ./config/webpack-production.config.js --env=production --progress --profile --colors",
+    "lint": "eslint ./{server,app,config}/**/*{config,''}.js",
+    "postinstall": "npm run build:production",
+    "start": "node server"
   }
 }

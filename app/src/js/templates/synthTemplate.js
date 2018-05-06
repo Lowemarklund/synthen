@@ -59,7 +59,19 @@ template.innerHTML =
             <option value="triangle">Triangle</option>
           </select>
         </div>
-       
+        <div>
+        <span>Keyboard octave: </span>
+        <select name="octave">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
+        </div>
+
         <div class="effectSettings"
           <div class="effect" id="flanger">
           <span>Flanger </span>
@@ -188,11 +200,12 @@ template.innerHTML =
       }
       
       .settingsBar {
+
         float: right;
-        margin: 20px;
+        margin-left: 30px;
         margin-top: -100px;
         padding: 20px;
-        font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
+        font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
         position: flexible;
         height: auto;
         width: auto;
@@ -250,20 +263,10 @@ template.innerHTML =
 </div>
 `
 
-{/* <div class="lfoFreq">
+{ /* <div class="lfoFreq">
 <span>Lfo freq: </span>
 <input type="range" min="0" max="1" step="0.01"
 value="1" list="lfoFreq" name="lfoFreq">
-<span>Keyboard octave: </span>
-<select name="octave">
-  <option value="1">1</option>
-  <option value="2">2</option>
-  <option value="3" selected>3</option>
-  <option value="4">4</option>
-  <option value="5">5</option>
-  <option value="6">6</option>
-  <option value="7">7</option>
-</select>
-</div> */}
+*/ }
 
 module.exports.template = template
