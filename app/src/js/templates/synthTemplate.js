@@ -61,7 +61,7 @@ template.innerHTML =
         </div>
         <div>
         <span>Keyboard octave: </span>
-        <select name="octave">
+        <select name="octave" class="octave">
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3" selected>3</option>
@@ -71,7 +71,7 @@ template.innerHTML =
           <option value="7">7</option>
         </select>
         </div>
-
+    
         <div class="effectSettings"
           <div class="effect" id="flanger">
           <span>Flanger </span>
@@ -203,7 +203,7 @@ template.innerHTML =
 
         float: right;
         margin-left: 30px;
-        margin-top: -100px;
+        margin-top: -175px;
         padding: 20px;
         font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
         position: flexible;
