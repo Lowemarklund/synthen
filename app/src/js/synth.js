@@ -189,6 +189,10 @@
          }
        }
      }, false)
+
+     window.addEventListener("click", () =>{
+       this._audioContext.resume()
+     });
    }
 
       /**
@@ -510,6 +514,16 @@
        oldTremolo.disconnect()
      }
    }
+
+  resumeAudio(){
+    if(typeof this._audioContext === "undefined" || this._audioContext === null){
+      return;
+    } 
+    if(this._audioContext.state === "suspended"){
+      this._audioContext.resume();
+    } 
+ }    
+
 }
 
  window.customElements.define('synth-element', Synth)
