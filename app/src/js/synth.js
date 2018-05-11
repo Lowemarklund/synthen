@@ -44,6 +44,8 @@
      this._flangerControl = this.shadowRoot.querySelector('#flanger')
      this._tremoloControl = this.shadowRoot.querySelector('#tremolo')
      this._reverbControl = this.shadowRoot.querySelector('#reverb')
+     this._ringModulatorControl = this.shadowRoot.querySelector('#ringModulator')
+     this._delayControl = this.shadowRoot.querySelector('#delay')
      this._lfoFrequency = this.shadowRoot.querySelector("input[name='lfoFreq']")
      this._audioContext = Pizzicato.context
      this._out = this._audioContext.destination
@@ -132,9 +134,18 @@
 
      this._reverbControl.onchange = (event) => {
        this._reverb.options[event.target.name] = Number(event.target.value)
-       console.log(this._reverb)
        this.effectsRouting(false)
      }
+
+     this._ringModulatorControl.onchange = (event) => {
+      this._ringModulator.options[event.target.name] = Number(event.target.value)
+      this.effectsRouting(false)
+    }
+
+    this._delayControl.onchange = (event) => {
+      this._delay.options[event.target.name] = Number(event.target.value)
+      this.effectsRouting(false)
+    }
 
      window.addEventListener('keydown', event => {
        if (document.activeElement !== this._sequencer) {

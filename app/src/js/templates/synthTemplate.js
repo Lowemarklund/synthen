@@ -1,9 +1,8 @@
 const template = document.createElement('template')
+const effectTemplate = require('./effectSectionTemplate')
+const effectSection = effectTemplate.template.innerHTML
 
 template.innerHTML =
-
-template.innerHTML =
-
 `<div class="synth">
     <div class="keyboard">
       <div class="settingsBar">
@@ -61,7 +60,7 @@ template.innerHTML =
         </div>
         <div>
         <span>Keyboard octave: </span>
-        <select name="octave" class="octave">
+        <select name="octave" class="octaveControl">
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3" selected>3</option>
@@ -72,64 +71,15 @@ template.innerHTML =
         </select>
         </div>
     
-        <div class="effectSettings"
-          <div class="effect" id="flanger">
-          <span>Flanger </span>
-          <br>
-          <span>Time: </span>
-          <input type="range" min="0.0" max="1.0" step="0.01"
-              value="0" list="flangerTime" name="time">
-          <br>
-          <span>Depth: </span>
-          <input type="range" min="0.0" max="1.0" step="0.01"
-              value="0" list="flangerDepth" name="depth">
-          <br>
-          <span>Speed: </span>
-          <input type="range" min="0.0" max="1.0" step="0.01"
-              value="0" list="flangerSpeed" name="speed">
-          <br>
-          <span>Feedback: </span>
-          <input type="range" min="0.0" max="1.0" step="0.01"
-              value="0" list="flangerFeedBack" name="feedback">
-          <br>
-          <span>Mix: </span>
-          <input type="range" min="0.0" max="1.0" step="0.01"
-              value="0" list="flangerMix" name="mix">
-          </div>
-
-          <div class="effect" id="tremolo">
-          <span>Tremolo </span>
-          <br>
-          <span>Depth: </span>
-          <input type="range" min="0.0" max="20" step="0.01"
-              value="0" list="tremoloDepth" name="depth">
-          <br>
-          <span>Speed: </span>
-          <input type="range" min="0.0" max="1000" step="1"
-              value="0" list="tremoloSpeed" name="speed">
-          <br>
-          <span>Mix: </span>
-          <input type="range" min="0.0" max="1.0" step="0.01"
-              value="0" list="tremoloMix" name="mix">
-          </div>   
-
-          <div class="effect" id="reverb">
-          <span>Reverb </span>
-          <br>
-          <span>time: </span>
-          <input type="range" min="0.0" max="3" step="0.01"
-              value="0" list="reverbTime" name="time">
-          <br>
-          <span>Decay: </span>
-          <input type="range" min="0.0" max="1" step="0.01"
-              value="0" list="reverbDecay" name="decay">
-          <br>
-          <span>Mix: </span>
-          <input type="range" min="0.0" max="1" step="0.01"
-              value="0" list="reverbMix" name="mix">
-          <br>
-          </div>
-          
+        <div class="SynthEffects">${effectSection}</div>
+        <div class="trackEffectSection" id="track1Effects">${effectSection}</div>
+        <div class="trackEffectSection" id="track2Effects">${effectSection}</div>
+        <div class="trackEffectSection" id="track3Effects">${effectSection}</div>
+        <div class="trackEffectSection" id="track4Effects">${effectSection}</div>
+        <div class="trackEffectSection" id="track5Effects">${effectSection}</div>
+        <div class="trackEffectSection" id="track6Effects">${effectSection}</div>
+        <div class="trackEffectSection" id="track7Effects">${effectSection}</div>
+       
         </div>
     </div>
   </div>
@@ -192,6 +142,11 @@ template.innerHTML =
         color: #fff;
       }
 
+      .octaveControl {
+        margin-top: 10px;
+        display: inline-block;
+
+      }
       
       .octave {
         margin-top: 10px;
@@ -258,6 +213,10 @@ template.innerHTML =
       .effect {
         margin-top: 20px;
         display: inline-block;
+      }
+
+      .trackEffectSection{
+          display: none;
       }
     </style>
 </div>

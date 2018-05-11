@@ -8,6 +8,7 @@
 
 const Synth = require('./synth')
 const SequencerTemplate = require('./templates/sequencerTemplate')
+const Pizzicato = require('./Pizzicato.js')
 const template = SequencerTemplate.template
 
 /**
@@ -74,6 +75,25 @@ class Sequencer extends window.HTMLElement {
     this._hasFocus = false
     this._synth = new Synth()
     this._isPlaying = false
+
+    this._effects = {
+      analyser: [],
+      delay: [],
+      flanger: [],
+      reverb: [],
+      tremolo: [],
+      ringModulator: [],
+    }
+    
+    this._flangerControl = this.shadowRoot.querySelector('#flanger')
+    this._tremoloControl = this.shadowRoot.querySelector('#tremolo')
+    this._reverbControl = this.shadowRoot.querySelector('#reverb')
+    this._ringModulatorControl = this.shadowRoot.querySelector('#ringModulator')
+    this._delayControl = this.shadowRoot.querySelector('#delay')
+    this._lfoFrequency = this.shadowRoot.querySelector("input[name='lfoFreq']")
+    this._audioContext = Pizzicato.context
+    this._out = this._audioContext.destination
+    this._effectsGainNode = this._audioContext.createGain()
   }
   /**
    * Watches attributes for changes on the element.
@@ -127,6 +147,7 @@ class Sequencer extends window.HTMLElement {
     this._trackSamples['5'].src = '/audio/drums/cymbals/1.wav'
     this._trackSamples['6'].src = '/audio/drums/percussion/1.wav'
     this._trackSamples['7'].src = '/audio/drums/claps/1.wav'
+    this.effectsRouting(true)
   }
 
      /**
@@ -251,6 +272,10 @@ class Sequencer extends window.HTMLElement {
         }
       }
     })
+
+    window.addEventListener("click", () =>{
+      this._audioContext.resume()
+    });
   }
     /**
    * Renders grid of the sequencer
@@ -599,6 +624,106 @@ class Sequencer extends window.HTMLElement {
       }
     }
   }
+
+  effectsRouting (defaultSettings, track) {
+    let effectOptionObj
+    let oldReverb
+    let oldFlanger
+    let oldTremolo
+    let oldDelay
+    let oldRingModulator
+
+    if (this._analyser && track) {
+      oldReverb = this._effect.reverb[track]
+      oldFlanger = this._effect.flanger[track]
+      oldTremolo = this._effect.tremolo[track]
+      oldDelay = this._effect.delay[track]
+      oldRingModulator = this._effect.delay[track]
+    }
+
+    if (defaultSettings === false || defaultSettings === undefined) {
+      effectOptionObj = {
+        flanger: this._effects.flanger.options,
+        delay: this._effects.delay.options,
+        reverb: this._effects.reverb.options,
+        tremolo: this._effects.tremolo.options,
+        ringmodulator: this._effects.ringModulator.options
+      }
+    }
+
+    if (defaultSettings === true) {
+      effectOptionObj = {
+        delay: {
+          feedback: 0,
+          time: 0,
+          mix: 0
+        },
+        flanger: {
+          time: 0,
+          speed: 0,
+          depth: 0,
+          feedback: 0,
+          mix: 0
+        },
+        reverb: {
+          time: 0,
+          decay: 0,
+          reverse: false,
+          mix: 0
+        },
+        tremolo: {
+          speed: 0,
+          depth: 0,
+          mix: 0
+        },
+        ringmodulator:
+        {
+          speed: 0,
+          distortion: 0,
+          mix: 0
+        }
+      }
+    }
+
+  
+
+    for(let i=0; i<7; i++){
+      this._effects.analyser.push(this._audioContext.createAnalyser()) 
+      this._effects.delay.push(new Pizzicato.Effects.Delay(effectOptionObj.delay))
+      this._effects.flanger.push(new Pizzicato.Effects.Flanger(effectOptionObj.flanger))
+      this._effects.reverb.push(new Pizzicato.Effects.Reverb(effectOptionObj.reverb))
+      this._effects.tremolo.push(new Pizzicato.Effects.Tremolo(effectOptionObj.tremolo))
+      this._effects.ringModulator.push(new Pizzicato.Effects.RingModulator(effectOptionObj.ringmodulator))
+    }
+
+    Object.values(this._effects).forEach(effect => {
+      effect.forEach((trackEffect, i) => {
+        this._effects.flanger[i].connect(this._effects.tremolo[i])
+        this._effects.tremolo[i].connect(this._effects.ringModulator[i])
+        this._effects.ringModulator[i].connect(this._effects.delay[i])
+        this._effects.delay[i].connect(this._effects.reverb[i])
+        this._effects.reverb[i].connect(this._effects.analyser[i])
+        this._effects.analyser[i].connect(this._out) 
+      });
+    });
+    
+    
+    if (oldReverb !== undefined) {
+      oldReverb.disconnect()
+      oldFlanger.disconnect()
+      oldDelay.disconnect()
+      oldRingModulator.disconnect()
+      oldTremolo.disconnect()
+  }
+}
+  resumeAudio(){
+    if(typeof this._audioContext === "undefined" || this._audioContext === null){
+      return;
+    } 
+    if(this._audioContext.state === "suspended"){
+      this._audioContext.resume();
+    } 
+ }    
 }
 
 window.customElements.define('grid-sequencer', Sequencer)

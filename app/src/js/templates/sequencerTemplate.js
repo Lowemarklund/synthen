@@ -15,6 +15,7 @@ template.innerHTML =
     <img class="pausePlayButton" type="play" src="/image/icons8-play-button-50.png" alt="pause/play icon">
     <div class="info">Click icons and numbers to change track sound</div>
     <button class="clearButton">Clear Grid</button>
+    
     <style>
         .sequencer {
             margin-left: 30px;
