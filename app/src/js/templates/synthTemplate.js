@@ -71,14 +71,16 @@ template.innerHTML =
         </select>
         </div>
     
-        <div class="SynthEffects">${effectSection}</div>
-        <div class="trackEffectSection" id="track1Effects">${effectSection}</div>
-        <div class="trackEffectSection" id="track2Effects">${effectSection}</div>
-        <div class="trackEffectSection" id="track3Effects">${effectSection}</div>
-        <div class="trackEffectSection" id="track4Effects">${effectSection}</div>
-        <div class="trackEffectSection" id="track5Effects">${effectSection}</div>
-        <div class="trackEffectSection" id="track6Effects">${effectSection}</div>
-        <div class="trackEffectSection" id="track7Effects">${effectSection}</div>
+        <div class="synthEffects">${effectSection}</div>
+        <div class="trackEffectControl">
+            <div id="track1Effects">${effectSection}</div>
+            <div class="trackEffectSection" id="track2Effects">${effectSection}</div>
+            <div class="trackEffectSection" id="track3Effects">${effectSection}</div>
+            <div class="trackEffectSection" id="track4Effects">${effectSection}</div>
+            <div class="trackEffectSection" id="track5Effects">${effectSection}</div>
+            <div class="trackEffectSection" id="track6Effects">${effectSection}</div>
+            <div class="trackEffectSection" id="track7Effects">${effectSection}</div>
+        </div>
        
         </div>
     </div>
@@ -217,6 +219,10 @@ template.innerHTML =
 
       .trackEffectSection{
           display: none;
+      }
+
+      .synthEffects {
+        display: none;
       }
     </style>
 </div>

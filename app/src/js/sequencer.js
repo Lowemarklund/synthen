@@ -72,6 +72,7 @@ class Sequencer extends window.HTMLElement {
       7: 'claps',
       8: 'synths'
     }
+    this._chosenTrack
     this._hasFocus = false
     this._synth = new Synth()
     this._isPlaying = false
@@ -84,13 +85,8 @@ class Sequencer extends window.HTMLElement {
       tremolo: [],
       ringModulator: [],
     }
-    
-    this._flangerControl = this.shadowRoot.querySelector('#flanger')
-    this._tremoloControl = this.shadowRoot.querySelector('#tremolo')
-    this._reverbControl = this.shadowRoot.querySelector('#reverb')
-    this._ringModulatorControl = this.shadowRoot.querySelector('#ringModulator')
-    this._delayControl = this.shadowRoot.querySelector('#delay')
-    this._lfoFrequency = this.shadowRoot.querySelector("input[name='lfoFreq']")
+
+    this._effectsControl = this._synth.shadowRoot.querySelectorAll(".trackEffectControl")[0]
     this._audioContext = Pizzicato.context
     this._out = this._audioContext.destination
     this._effectsGainNode = this._audioContext.createGain()
@@ -137,6 +133,7 @@ class Sequencer extends window.HTMLElement {
    * @memberof Sequencer
    */
   connectedCallback () {
+    console.log(this._effectsControl)
     this.setAttribute('looplength', '16')
     this.renderGrid()
     this.inputListen()
@@ -147,6 +144,11 @@ class Sequencer extends window.HTMLElement {
     this._trackSamples['5'].src = '/audio/drums/cymbals/1.wav'
     this._trackSamples['6'].src = '/audio/drums/percussion/1.wav'
     this._trackSamples['7'].src = '/audio/drums/claps/1.wav'
+
+    Object.values(this._trackSamples).forEach((sample)=>{
+      let source = this._audioContext.createMediaElementSource(sample);
+      source.connect(this._effectsGainNode);
+    })
     this.effectsRouting(true)
   }
 
@@ -275,7 +277,13 @@ class Sequencer extends window.HTMLElement {
 
     window.addEventListener("click", () =>{
       this._audioContext.resume()
-    });
+    })
+
+    this._effectsControl.onchange = (event) => {
+      console.log(event.target.parentNode.id)
+      this._effects[event.target.parentNode.id][this._chosenTrack].options[event.target.name] = Number(event.target.value)
+      this.effectsRouting(false, this._chosenTrack)
+    }
   }
     /**
    * Renders grid of the sequencer
@@ -512,6 +520,9 @@ class Sequencer extends window.HTMLElement {
     if (cellClicked === true) {
       cell.style.backgroundColor = 'green'
       cell.setAttribute('chosen', 'true')
+      this._chosenTrack = Number(cell.getAttribute('row'))
+      //updates effect section to match chosen track
+
       this._grid.querySelectorAll('.cell').forEach(c => {
         if (c.getAttribute('active') === 'true' && c !== cell) {
           this.cellActivate(c, false)
@@ -683,29 +694,43 @@ class Sequencer extends window.HTMLElement {
           mix: 0
         }
       }
-    }
 
+      for(let i=0; i<7; i++){
+        this._effects.analyser.push(this._audioContext.createAnalyser()) 
+        this._effects.delay.push(new Pizzicato.Effects.Delay(effectOptionObj.delay))
+        this._effects.flanger.push(new Pizzicato.Effects.Flanger(effectOptionObj.flanger))
+        this._effects.reverb.push(new Pizzicato.Effects.Reverb(effectOptionObj.reverb))
+        this._effects.tremolo.push(new Pizzicato.Effects.Tremolo(effectOptionObj.tremolo))
+        this._effects.ringModulator.push(new Pizzicato.Effects.RingModulator(effectOptionObj.ringmodulator))
+      }
   
-
-    for(let i=0; i<7; i++){
-      this._effects.analyser.push(this._audioContext.createAnalyser()) 
-      this._effects.delay.push(new Pizzicato.Effects.Delay(effectOptionObj.delay))
-      this._effects.flanger.push(new Pizzicato.Effects.Flanger(effectOptionObj.flanger))
-      this._effects.reverb.push(new Pizzicato.Effects.Reverb(effectOptionObj.reverb))
-      this._effects.tremolo.push(new Pizzicato.Effects.Tremolo(effectOptionObj.tremolo))
-      this._effects.ringModulator.push(new Pizzicato.Effects.RingModulator(effectOptionObj.ringmodulator))
+      Object.values(this._effects).forEach(effect => {
+        effect.forEach((trackEffect, i) => {
+          this._effectsGainNode.connect(this._effects.flanger[i])
+          this._effects.flanger[i].connect(this._effects.tremolo[i])
+          this._effects.tremolo[i].connect(this._effects.ringModulator[i])
+          this._effects.ringModulator[i].connect(this._effects.delay[i])
+          this._effects.delay[i].connect(this._effects.reverb[i])
+          this._effects.reverb[i].connect(this._effects.analyser[i])
+          this._effects.analyser[i].connect(this._out) 
+        });
+      });
     }
 
-    Object.values(this._effects).forEach(effect => {
-      effect.forEach((trackEffect, i) => {
-        this._effects.flanger[i].connect(this._effects.tremolo[i])
-        this._effects.tremolo[i].connect(this._effects.ringModulator[i])
-        this._effects.ringModulator[i].connect(this._effects.delay[i])
-        this._effects.delay[i].connect(this._effects.reverb[i])
-        this._effects.reverb[i].connect(this._effects.analyser[i])
-        this._effects.analyser[i].connect(this._out) 
-      });
-    });
+    this._effects.analyser[track-1] = this._audioContext.createAnalyser()
+    this._effects.delay[track-1]  = new Pizzicato.Effects.Delay(effectOptionObj.delay)
+    this._effects.flanger[track-1]  = new Pizzicato.Effects.Flanger(effectOptionObj.flanger)
+    this._effects.reverb[track-1]  = new Pizzicato.Effects.Reverb(effectOptionObj.reverb)
+    this._effects.tremolo[track-1]  = new Pizzicato.Effects.Tremolo(effectOptionObj.tremolo)
+    this._effects.ringModulator[track-1]  = new Pizzicato.Effects.RingModulator(effectOptionObj.ringmodulator)
+    
+    this._effectsGainNode.connect(this._effects.flanger[track-1])
+    this._effects.flanger[track-1].connect(this._effects.tremolo[track-1])
+    this._effects.tremolo[track-1].connect(this._effects.ringModulator[track-1])
+    this._effects.ringModulator[track-1].connect(this._effects.delay[track-1])
+    this._effects.delay[track-1].connect(this._effects.reverb[track-1])
+    this._effects.reverb[track-1].connect(this._effects.analyser[track-1])
+    this._effects.analyser[track-1].connect(this._out) 
     
     
     if (oldReverb !== undefined) {
