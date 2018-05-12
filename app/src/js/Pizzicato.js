@@ -1125,13 +1125,14 @@
 			enumerable: true,
 	
 			get: function() {
-				return this.options.time;	
+				return this.options.time;
 			},
 	
 			set: function(time) {
+				console.log('asdasd')
 				if (!Pz.Util.isInRange(time, 0, 180))
 					return;
-	
+
 				this.options.time = time;
 				this.delayNode.delayTime.value = time;
 			}

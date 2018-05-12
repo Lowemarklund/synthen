@@ -73,7 +73,7 @@ template.innerHTML =
     
         <div class="synthEffects">${effectSection}</div>
         <div class="trackEffectControl">
-            <div id="track1Effects">${effectSection}</div>
+            <div class="trackEffectSection" id="track1Effects">${effectSection}</div>
             <div class="trackEffectSection" id="track2Effects">${effectSection}</div>
             <div class="trackEffectSection" id="track3Effects">${effectSection}</div>
             <div class="trackEffectSection" id="track4Effects">${effectSection}</div>
@@ -219,6 +219,7 @@ template.innerHTML =
 
       .trackEffectSection{
           display: none;
+          margin-left: 10px;
       }
 
       .synthEffects {

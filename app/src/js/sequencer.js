@@ -89,7 +89,7 @@ class Sequencer extends window.HTMLElement {
     this._effectsControl = this._synth.shadowRoot.querySelectorAll(".trackEffectControl")[0]
     this._audioContext = Pizzicato.context
     this._out = this._audioContext.destination
-    this._effectsGainNode = this._audioContext.createGain()
+    this._effectsGainNodes = {}
   }
   /**
    * Watches attributes for changes on the element.
@@ -133,7 +133,6 @@ class Sequencer extends window.HTMLElement {
    * @memberof Sequencer
    */
   connectedCallback () {
-    console.log(this._effectsControl)
     this.setAttribute('looplength', '16')
     this.renderGrid()
     this.inputListen()
@@ -145,9 +144,10 @@ class Sequencer extends window.HTMLElement {
     this._trackSamples['6'].src = '/audio/drums/percussion/1.wav'
     this._trackSamples['7'].src = '/audio/drums/claps/1.wav'
 
-    Object.values(this._trackSamples).forEach((sample)=>{
+    Object.values(this._trackSamples).forEach((sample, i)=>{
+      this._effectsGainNodes[i] = this._audioContext.createGain()
       let source = this._audioContext.createMediaElementSource(sample);
-      source.connect(this._effectsGainNode);
+      source.connect(this._effectsGainNodes[i]);
     })
     this.effectsRouting(true)
   }
@@ -212,7 +212,7 @@ class Sequencer extends window.HTMLElement {
       if (event.target.getAttribute('class') === 'instrumentNumber') {
         // changes sample number
         let currentInstrument = Number(event.target.previousSibling.getAttribute('type'))
-        let instrumentTypeSampleAmount = {kicks: 26, snares: 23, hihats: 15, toms: 9, cymbals: 4, percussion: 13, claps: 6, cowbells: 1}
+        let instrumentTypeSampleAmount = {kicks: 26, snares: 23, hihats: 15, toms: 9, cymbals: 4, percussion: 13, claps: 6, cowbells: 1, synths: 1}
         let nextSample = Number(event.target.innerText) + 1
 
         if (nextSample > instrumentTypeSampleAmount[Object.keys(instrumentTypeSampleAmount)[currentInstrument]]) {
@@ -280,8 +280,7 @@ class Sequencer extends window.HTMLElement {
     })
 
     this._effectsControl.onchange = (event) => {
-      console.log(event.target.parentNode.id)
-      this._effects[event.target.parentNode.id][this._chosenTrack].options[event.target.name] = Number(event.target.value)
+      this._effects[event.target.parentNode.id][this._chosenTrack-1].options[event.target.name] = Number(event.target.value)
       this.effectsRouting(false, this._chosenTrack)
     }
   }
@@ -522,7 +521,20 @@ class Sequencer extends window.HTMLElement {
       cell.setAttribute('chosen', 'true')
       this._chosenTrack = Number(cell.getAttribute('row'))
       //updates effect section to match chosen track
+      let effectSections = this._synth.shadowRoot.querySelectorAll('.trackEffectSection')
+      let synthSection = this._synth.shadowRoot.querySelectorAll('.synthEffects')[0]
 
+      effectSections.forEach(section => {
+        section.style.display = 'none'
+      });
+      console.log(this._trackInstrument[cell.getAttribute('row')])
+      if(this._trackInstrument[cell.getAttribute('row')] !== 'synths'){
+          effectSections[this._chosenTrack-1].style.display = 'inherit'
+          synthSection.style.display = 'none'
+      }else{
+          synthSection.style.display = 'inherit'
+      }
+    
       this._grid.querySelectorAll('.cell').forEach(c => {
         if (c.getAttribute('active') === 'true' && c !== cell) {
           this.cellActivate(c, false)
@@ -637,6 +649,7 @@ class Sequencer extends window.HTMLElement {
   }
 
   effectsRouting (defaultSettings, track) {
+
     let effectOptionObj
     let oldReverb
     let oldFlanger
@@ -644,21 +657,21 @@ class Sequencer extends window.HTMLElement {
     let oldDelay
     let oldRingModulator
 
-    if (this._analyser && track) {
-      oldReverb = this._effect.reverb[track]
-      oldFlanger = this._effect.flanger[track]
-      oldTremolo = this._effect.tremolo[track]
-      oldDelay = this._effect.delay[track]
-      oldRingModulator = this._effect.delay[track]
+    if (this._effects.analyser[track-1] && track) {
+      oldReverb = this._effects.reverb[track-1]
+      oldFlanger = this._effects.flanger[track-1]
+      oldTremolo = this._effects.tremolo[track-1]
+      oldDelay = this._effects.delay[track-1]
+      oldRingModulator = this._effects.ringModulator[track-1]
     }
 
-    if (defaultSettings === false || defaultSettings === undefined) {
+    if (defaultSettings === false) {
       effectOptionObj = {
-        flanger: this._effects.flanger.options,
-        delay: this._effects.delay.options,
-        reverb: this._effects.reverb.options,
-        tremolo: this._effects.tremolo.options,
-        ringmodulator: this._effects.ringModulator.options
+        flanger: oldFlanger.options,
+        delay: oldDelay.options,
+        reverb: oldReverb.options,
+        tremolo: oldTremolo.options,
+        ringmodulator: oldRingModulator.options
       }
     }
 
@@ -702,19 +715,15 @@ class Sequencer extends window.HTMLElement {
         this._effects.reverb.push(new Pizzicato.Effects.Reverb(effectOptionObj.reverb))
         this._effects.tremolo.push(new Pizzicato.Effects.Tremolo(effectOptionObj.tremolo))
         this._effects.ringModulator.push(new Pizzicato.Effects.RingModulator(effectOptionObj.ringmodulator))
+
+        this._effectsGainNodes[i].connect(this._effects.flanger[i])
+        this._effects.flanger[i].connect(this._effects.tremolo[i])
+        this._effects.tremolo[i].connect(this._effects.ringModulator[i])
+        this._effects.ringModulator[i].connect(this._effects.delay[i])
+        this._effects.delay[i].connect(this._effects.reverb[i])
+        this._effects.reverb[i].connect(this._effects.analyser[i])
       }
-  
-      Object.values(this._effects).forEach(effect => {
-        effect.forEach((trackEffect, i) => {
-          this._effectsGainNode.connect(this._effects.flanger[i])
-          this._effects.flanger[i].connect(this._effects.tremolo[i])
-          this._effects.tremolo[i].connect(this._effects.ringModulator[i])
-          this._effects.ringModulator[i].connect(this._effects.delay[i])
-          this._effects.delay[i].connect(this._effects.reverb[i])
-          this._effects.reverb[i].connect(this._effects.analyser[i])
-          this._effects.analyser[i].connect(this._out) 
-        });
-      });
+      return
     }
 
     this._effects.analyser[track-1] = this._audioContext.createAnalyser()
@@ -723,8 +732,8 @@ class Sequencer extends window.HTMLElement {
     this._effects.reverb[track-1]  = new Pizzicato.Effects.Reverb(effectOptionObj.reverb)
     this._effects.tremolo[track-1]  = new Pizzicato.Effects.Tremolo(effectOptionObj.tremolo)
     this._effects.ringModulator[track-1]  = new Pizzicato.Effects.RingModulator(effectOptionObj.ringmodulator)
-    
-    this._effectsGainNode.connect(this._effects.flanger[track-1])
+
+    this._effectsGainNodes[track-1].connect(this._effects.flanger[track-1])
     this._effects.flanger[track-1].connect(this._effects.tremolo[track-1])
     this._effects.tremolo[track-1].connect(this._effects.ringModulator[track-1])
     this._effects.ringModulator[track-1].connect(this._effects.delay[track-1])
@@ -734,11 +743,17 @@ class Sequencer extends window.HTMLElement {
     
     
     if (oldReverb !== undefined) {
-      oldReverb.disconnect()
       oldFlanger.disconnect()
-      oldDelay.disconnect()
-      oldRingModulator.disconnect()
       oldTremolo.disconnect()
+      oldRingModulator.disconnect()
+      this._effectsGainNodes[track-1].connect(oldDelay)
+      setTimeout(()=>{
+        oldDelay.disconnect()
+        this._effectsGainNodes[track-1].connect(oldReverb)
+      }, oldDelay.options.time * 1000)
+      setTimeout(()=>{
+        oldReverb.disconnect()
+      }, oldReverb.options.time * 1000)
   }
 }
   resumeAudio(){
