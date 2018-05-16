@@ -15,6 +15,7 @@
     "node-sass": "^4.5.2",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.16.1",
+    "uniq": "^1.0.1",
     "webpack": "^2.2.1",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.16.1"
@@ -22,12 +23,19 @@
   "devDependencies": {
     "babel-cli": "^6.22.2",
     "babel-preset-latest": "^6.22.0",
+    "chai": "^4.1.2",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^14.1.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.9.0"
+    "eslint-plugin-react": "^6.9.0",
+    "mocha": "^5.1.1",
+    "mocha-phantomjs": "^4.1.0",
+    "mocha-phantomjs-core": "^2.1.2",
+    "phantomjs": "^2.1.7",
+    "phantomjs-prebuilt": "^2.1.16",
+    "requirejs": "^2.3.5"
   },
   "engines": {
     "node": "7.10.1"

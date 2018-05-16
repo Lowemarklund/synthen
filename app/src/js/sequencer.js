@@ -87,9 +87,11 @@ class Sequencer extends window.HTMLElement {
     }
 
     this._effectsControl = this._synth.shadowRoot.querySelectorAll(".trackEffectControl")[0]
+    this._audioSources = {}
     this._audioContext = Pizzicato.context
     this._out = this._audioContext.destination
     this._effectsGainNodes = {}
+    this._startGainNode = this._audioContext.createGain()
   }
   /**
    * Watches attributes for changes on the element.
@@ -148,8 +150,12 @@ class Sequencer extends window.HTMLElement {
       this._effectsGainNodes[i] = this._audioContext.createGain()
       let source = this._audioContext.createMediaElementSource(sample);
       source.connect(this._effectsGainNodes[i]);
+      source.connect(this._startGainNode);
+      this._audioSources[i+1] = source
     })
+    this._startGainNode.connect(this._out);
     this.effectsRouting(true)
+    this._chosenTrack = 8
   }
 
      /**
@@ -278,6 +284,7 @@ class Sequencer extends window.HTMLElement {
     window.addEventListener("click", () =>{
       this._audioContext.resume()
     })
+    
 
     this._effectsControl.onchange = (event) => {
       this._effects[event.target.parentNode.id][this._chosenTrack-1].options[event.target.name] = Number(event.target.value)
@@ -318,7 +325,8 @@ class Sequencer extends window.HTMLElement {
       cell.setAttribute('note', 'C')
       cell.setAttribute('octave', '3')
       cell.setAttribute('noteLength', '100')
-      cell.setAttribute('notemenuopen', 'false')
+      cell.setAttribute('sampleLength', '1')
+      cell.setAttribute('samplePitch', '1')
       cell.setAttribute('chosen', 'false')
       this._grid.appendChild(cell)
 
@@ -454,6 +462,7 @@ class Sequencer extends window.HTMLElement {
 
             this._trackSamples[cells[i].getAttribute('row')].pause()
             this._trackSamples[cells[i].getAttribute('row')].currentTime = 0
+            this._trackSamples[cells[i].getAttribute('row')].playbackRate = cells[i].getAttribute('samplePitch')
             let playPromise = this._trackSamples[cells[i].getAttribute('row')].play()
             playPromise.then(_ => {
 
@@ -520,19 +529,25 @@ class Sequencer extends window.HTMLElement {
       cell.style.backgroundColor = 'green'
       cell.setAttribute('chosen', 'true')
       this._chosenTrack = Number(cell.getAttribute('row'))
+      //put in own function
       //updates effect section to match chosen track
       let effectSections = this._synth.shadowRoot.querySelectorAll('.trackEffectSection')
-      let synthSection = this._synth.shadowRoot.querySelectorAll('.synthEffects')[0]
+      let synthSection = { 
+        modulation: this._synth.shadowRoot.querySelectorAll('.modulationSection')[0],
+        effects: this._synth.shadowRoot.querySelectorAll('.synthEffects')[0]
+      }
 
       effectSections.forEach(section => {
         section.style.display = 'none'
       });
-      console.log(this._trackInstrument[cell.getAttribute('row')])
+
       if(this._trackInstrument[cell.getAttribute('row')] !== 'synths'){
           effectSections[this._chosenTrack-1].style.display = 'inherit'
-          synthSection.style.display = 'none'
+          synthSection.modulation.style.display = 'none'
+          synthSection.effects.style.display = 'none'
       }else{
-          synthSection.style.display = 'inherit'
+          synthSection.modulation.style.display = 'inherit'
+          synthSection.effects.style.display = 'inherit'
       }
     
       this._grid.querySelectorAll('.cell').forEach(c => {
@@ -541,19 +556,37 @@ class Sequencer extends window.HTMLElement {
         }
       })
     }
+    //put in own function
+    if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]){
+      if (this._trackInstrument[cell.getAttribute('row')] === 'synths' && cellClicked === true) {
+        if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].getAttribute('type') === 'sample'){
+          this._grid.removeChild(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0])
+        }
+        if (this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]) {
+          this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].setAttribute('assignedCell', cell.id)
+          this.shadowRoot.querySelectorAll('.noteSelectionMenu')[0].children[1].value = cell.getAttribute('note')
+          this.shadowRoot.querySelectorAll('.octaveSelectionMenu')[0].children[1].value = cell.getAttribute('octave')
+          this.shadowRoot.querySelectorAll('.noteLengthInput')[0].children[1].value = cell.getAttribute('noteLength')
+          cell.style.border = 'green'
+        } else {
+          this.changeCellNote(cell)
+        }
+      } if (this._trackInstrument[cell.getAttribute('row')] !== 'synths' && cellClicked === true) {
+          if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].getAttribute('type') === 'synth'){
+            this._grid.removeChild(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0])
+            this.changeCellNote(cell)
+          }
 
-    if (this._trackInstrument[cell.getAttribute('row')] === 'synths' && cellClicked === true) {
-      if (this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]) {
-        this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].setAttribute('assignedCell', cell.id)
-        this.shadowRoot.querySelectorAll('.noteSelectionMenu')[0].children[1].value = cell.getAttribute('note')
-        this.shadowRoot.querySelectorAll('.octaveSelectionMenu')[0].children[1].value = cell.getAttribute('octave')
-        this.shadowRoot.querySelectorAll('.noteLengthInput')[0].children[1].value = cell.getAttribute('noteLength')
-        cell.style.border = 'green'
-      } else {
-        this.changeCellNote(cell)
+          if (this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]) {
+            this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].setAttribute('assignedCell', cell.id)
+            this.shadowRoot.querySelector("input[name='samplePitch']").value = cell.getAttribute('samplePitch')
+            cell.style.border = 'green'
+        } else {
+          this.changeCellNote(cell)
+        }
       }
-    } if (this.shadowRoot.querySelectorAll('.changeNoteMenu')[0] && this._trackInstrument[cell.getAttribute('row')] !== 'synths' && cellClicked === true) {
-      this._grid.removeChild(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0])
+    } else {
+          this.changeCellNote(cell)
     }
   }
 
@@ -562,12 +595,16 @@ class Sequencer extends window.HTMLElement {
     let noteSelectionMenu = document.createElement('div')
     let octaveSelectionMenu = document.createElement('div')
     let noteLengthInput = document.createElement('div')
+    let sampleLengthInput = document.createElement('div')
+    let samplePitchInput = document.createElement('div')
     let closeButton = document.createElement('div')
 
     changeNoteMenu.setAttribute('class', 'changeNoteMenu')
     noteSelectionMenu.setAttribute('class', 'noteSelectionMenu')
     octaveSelectionMenu.setAttribute('class', 'octaveSelectionMenu')
     noteLengthInput.setAttribute('class', 'noteLengthInput')
+    sampleLengthInput.setAttribute('class', 'sampleLengthInput')
+    samplePitchInput.setAttribute('class', 'samplePitchInput')
 
     noteSelectionMenu.innerHTML =
     `<span>Note: </span>
@@ -606,37 +643,58 @@ class Sequencer extends window.HTMLElement {
       <option value="1.0" label="100%">
     </datalist>`
 
+    samplePitchInput.innerHTML =
+    `<span>Playback rate: </span>
+    <input type="range" min="0.1" max="4" step="0.05"
+        value="1.0" list="samplePitches" name="samplePitch">`
+
     changeNoteMenu.setAttribute('assignedcell', cell.id)
 
     closeButton.innerText = 'x'
 
-    if (cell.getAttribute('notemenuopen') === 'false') {
+    if (this._trackInstrument[cell.getAttribute('row')] === 'synths') {
       changeNoteMenu.appendChild(noteSelectionMenu)
       changeNoteMenu.appendChild(octaveSelectionMenu)
       changeNoteMenu.appendChild(noteLengthInput)
       changeNoteMenu.appendChild(closeButton)
-
       cell.parentNode.appendChild(changeNoteMenu)
-      cell.setAttribute('notemenuopen', 'true')
+      changeNoteMenu.setAttribute('type', 'synth')
+    }
+
+    if (this._trackInstrument[cell.getAttribute('row')] !== 'synths') {
+      changeNoteMenu.appendChild(samplePitchInput)
+      changeNoteMenu.appendChild(closeButton)
+      cell.parentNode.appendChild(changeNoteMenu)
+      changeNoteMenu.setAttribute('type', 'sample')
     }
 
     let changeNoteElement = this.shadowRoot.querySelector("select[name='note']")
     let changeOctaveElement = this.shadowRoot.querySelector("select[name='octave']")
     let changeNoteLengthElement = this.shadowRoot.querySelector("input[name='noteLength']")
-
-    if (cell.getAttribute('note') && cell.getAttribute('octave') && cell.getAttribute('noteLength') && this._grid.querySelectorAll('.changeNoteMenu')[0]) {
-      changeNoteElement.value = cell.getAttribute('note')
-      changeOctaveElement.value = cell.getAttribute('octave')
-      changeNoteLengthElement.value = cell.getAttribute('noteLength')
+    let changeSamplePitchElement = this.shadowRoot.querySelector("input[name='samplePitch']")
+    
+    if (this._grid.querySelectorAll('.changeNoteMenu')[0]) {
+      if(this._trackInstrument[cell.getAttribute('row')] === 'synths'){
+        changeNoteElement.value = cell.getAttribute('note')
+        changeOctaveElement.value = cell.getAttribute('octave')
+        changeNoteLengthElement.value = cell.getAttribute('noteLength')
+      } if(this._trackInstrument[cell.getAttribute('row')] !== 'synths'){
+        changeSamplePitchElement.value = cell.getAttribute('samplePitch')
+      }
     }
 
     changeNoteMenu.onchange = () => {
       let cells = this._grid.querySelectorAll('.cell')
       cells.forEach(c => {
         if (c.id === changeNoteMenu.getAttribute('assignedcell')) {
-          c.setAttribute('note', `${changeNoteElement.value}`)
-          c.setAttribute('octave', `${changeOctaveElement.value}`)
-          c.setAttribute('noteLength', `${changeNoteLengthElement.value}`)
+          if(this._trackInstrument[cell.getAttribute('row')] === 'synths'){
+            c.setAttribute('note', `${changeNoteElement.value}`)
+            c.setAttribute('octave', `${changeOctaveElement.value}`)
+            c.setAttribute('noteLength', `${changeNoteLengthElement.value}`)
+          }else{
+            c.setAttribute('samplePitch', `${changeSamplePitchElement.value}`)
+            console.log(cell.getAttribute('samplePitch'))
+          }
         }
       })
     }
@@ -649,6 +707,11 @@ class Sequencer extends window.HTMLElement {
   }
 
   effectsRouting (defaultSettings, track) {
+
+    if(track && this._audioSources[track] !== null ){
+      this._audioSources[track].disconnect(this._startGainNode)
+      this._audioSources[track] = null
+    }
 
     let effectOptionObj
     let oldReverb
@@ -755,6 +818,27 @@ class Sequencer extends window.HTMLElement {
         oldReverb.disconnect()
       }, oldReverb.options.time * 1000)
   }
+}
+updateEffectSection(cell){
+   //updates effect section to match chosen track
+   let effectSections = this._synth.shadowRoot.querySelectorAll('.trackEffectSection')
+   let synthSection = { 
+     modulation: this._synth.shadowRoot.querySelectorAll('.settingsbar')[0],
+     effects: this._synth.shadowRoot.querySelectorAll('.synthEffects')[0]
+   }
+
+   effectSections.forEach(section => {
+     section.style.display = 'none'
+   });
+
+   if(this._trackInstrument[cell.getAttribute('row')] !== 'synths'){
+       effectSections[this._chosenTrack-1].style.display = 'inherit'
+       synthSection.modulation.display = 'none'
+       synthSection.effects.style.display = 'none'
+   }else{
+       synthSection.modulation.style.display = 'inherit'
+       synthSection.effects.style.display = 'inherit'
+   }
 }
   resumeAudio(){
     if(typeof this._audioContext === "undefined" || this._audioContext === null){

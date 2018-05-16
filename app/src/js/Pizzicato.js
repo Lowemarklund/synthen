@@ -1129,7 +1129,6 @@
 			},
 	
 			set: function(time) {
-				console.log('asdasd')
 				if (!Pz.Util.isInRange(time, 0, 180))
 					return;
 

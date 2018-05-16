@@ -6,6 +6,7 @@ template.innerHTML =
 `<div class="synth">
     <div class="keyboard">
       <div class="settingsBar">
+      <div class="modulationSection">
         <div class="volumeInput">
           <span>Volume: </span>
           <input type="range" min="0.0" max="1.0" step="0.01"
@@ -70,7 +71,7 @@ template.innerHTML =
           <option value="7">7</option>
         </select>
         </div>
-    
+        </div>
         <div class="synthEffects">${effectSection}</div>
         <div class="trackEffectControl">
             <div class="trackEffectSection" id="track1Effects">${effectSection}</div>
@@ -157,7 +158,6 @@ template.innerHTML =
       }
       
       .settingsBar {
-
         float: right;
         margin-left: 30px;
         margin-top: -175px;
@@ -223,7 +223,7 @@ template.innerHTML =
       }
 
       .synthEffects {
-        display: none;
+
       }
     </style>
 </div>
