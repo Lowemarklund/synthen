@@ -8,8 +8,8 @@ template.innerHTML =
         <div class="loopLengthLog">Length: 16 </div>
     </div>
     <div class="inputs">
-        <input class="bmpInput" placeholder="Enter tempo (BPM) max = 300 min = 30"></input>
-        <input class="loopLengthInput" placeholder="Enter loop length (max = 32 min = 1)"></input>
+        <input class="bpmInput" placeholder="Enter tempo (BPM) max = 300 min = 30" focus="false"></input>
+        <input class="loopLengthInput" placeholder="Enter loop length (max = 32 min = 1)" focus="false"></input>
     </div>
     <div class="grid"></div>
     <img class="pausePlayButton" type="play" src="/image/icons8-play-button-50.png" alt="pause/play icon">

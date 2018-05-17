@@ -233,6 +233,11 @@ class Sequencer extends window.HTMLElement {
       if (event.target.getAttribute('class') === 'clearButton') {
         this.clearGrid()
       }
+
+      if (event.target.getAttribute('class') === 'bpmInput' || event.target.getAttribute('class') === 'loopLengthInput') {
+        event.target.setAttribute('focus', 'true')
+      }
+
     })
 
     this._inputs.addEventListener('keydown', event => {
@@ -254,7 +259,7 @@ class Sequencer extends window.HTMLElement {
           }
         }
             // Changes the tempo to what the user has entered
-        if (event.target.getAttribute('class') === 'bmpInput') {
+        if (event.target.getAttribute('class') === 'bpmInput') {
           let input = Number(event.target.value)
             // Error handling
           if (input <= 300 && input >= 30) {
@@ -325,7 +330,6 @@ class Sequencer extends window.HTMLElement {
       cell.setAttribute('note', 'C')
       cell.setAttribute('octave', '3')
       cell.setAttribute('noteLength', '100')
-      cell.setAttribute('sampleLength', '1')
       cell.setAttribute('samplePitch', '1')
       cell.setAttribute('chosen', 'false')
       this._grid.appendChild(cell)
@@ -404,7 +408,16 @@ class Sequencer extends window.HTMLElement {
 
     for (let i = 0; i < this._cells.length; i++) {
       if (this._cells[i].getAttribute('active') === 'true') {
-        grid[Number(this._cells[i].getAttribute('row'))].push(this._cells[i].getAttribute('column'))
+        let cellParameters = 
+        {
+          column: this._cells[i].getAttribute('column'),
+          note: this._cells[i].getAttribute('note'),
+          octave: this._cells[i].getAttribute('octave'),
+          noteLength: this._cells[i].getAttribute('noteLength'),
+          samplePitch: this._cells[i].getAttribute('samplePitch'),
+          chosen: this._cells[i].getAttribute('chosen'),
+        }
+        grid[Number(this._cells[i].getAttribute('row'))].push(cellParameters)
       }
     }
     this._storedGrid = grid
@@ -419,10 +432,25 @@ class Sequencer extends window.HTMLElement {
       if (this._cells[i].getAttribute('column') === this.getAttribute('currentbeat') && this._cells[i].getAttribute('chosen') === 'false') {
         this._cells[i].style.backgroundColor = 'red'
       }
-
+      
       for (let i2 = 0; i2 < this._storedGrid[Number(this._cells[i].getAttribute('row'))].length; i2++) {
-        if (this._storedGrid[Number(this._cells[i].getAttribute('row'))][i2] === this._cells[i].getAttribute('column')) {
-          this.cellActivate(this._cells[i])
+        if (this._storedGrid[Number(this._cells[i].getAttribute('row'))][i2].column === this._cells[i].getAttribute('column')) {
+          debugger
+          let storedCell = this._storedGrid[Number(this._cells[i].getAttribute('row'))][i2]
+          this._cells[i].setAttribute('column', storedCell.column)
+          this._cells[i].setAttribute('note', storedCell.note)
+          this._cells[i].setAttribute('octave', storedCell.octave)
+          this._cells[i].setAttribute('noteLength', storedCell.noteLength)
+          this._cells[i].setAttribute('samplePitch', storedCell.samplePitch)
+          this._cells[i].setAttribute('chosen', storedCell.chosen)
+
+          let cellChosen = false
+      
+          if(this._cells[i].getAttribute('chosen') === 'true'){
+            cellChosen = true
+          }
+
+          this.cellActivate(this._cells[i], cellChosen)
         }
       }
     }
@@ -449,9 +477,12 @@ class Sequencer extends window.HTMLElement {
           this.setAttribute('currentbeat', column)
 
           if (i > 0 && cells[i - 1].getAttribute('active') === 'false') {
-            this.cellDeactivate(cells[i - 1])
+            this.cellDeactivate(cells[i-1])
           }
+
+
           if (cells[i].getAttribute('active') === 'true') {
+
             if (this._trackInstrument[cells[i].getAttribute('row')] === 'synths') {
               let note = cells[i].getAttribute('note')
               let octave = Number(cells[i].getAttribute('octave'))
@@ -459,6 +490,8 @@ class Sequencer extends window.HTMLElement {
               let key = this._synth.createKey(note, octave, frequency, note + `${octave}`)
               this._synth.notePressed(key, note + `${octave}`, cells[i])
             }
+
+
 
             this._trackSamples[cells[i].getAttribute('row')].pause()
             this._trackSamples[cells[i].getAttribute('row')].currentTime = 0
@@ -470,7 +503,10 @@ class Sequencer extends window.HTMLElement {
 
             })
           } else {
-            this.cellDeactivate(cells[(cells.length) - 1])
+            if(cells[cells.length-1].getAttribute('active') === 'false'){
+              this.cellDeactivate(cells[cells.length- 1])
+            }
+
           }
         }
         if (cells[i].getAttribute('active') === 'true' && cells[i].getAttribute('chosen') === 'false') {
@@ -490,7 +526,7 @@ class Sequencer extends window.HTMLElement {
   /**
    * Syncs all the sequencers open on the desktop to start/stop at the same time
    *
-   * @memberof Sequencer
+   * @memberof Sequence
    */
   timeSync () {
     for (let i = 0; i < this.parentNode.parentNode.querySelectorAll('grid-sequencer').length; i++) {
@@ -514,6 +550,7 @@ class Sequencer extends window.HTMLElement {
    */
   cellDeactivate (cell) {
     cell.setAttribute('active', 'false')
+    cell.setAttribute('chosen', 'false')
     cell.style.backgroundColor = 'white'
   }
   /**
@@ -521,11 +558,13 @@ class Sequencer extends window.HTMLElement {
    *
    * @memberof Sequencer
    */
-  cellActivate (cell, cellClicked, shiftClick) {
+  cellActivate (cell, cellChosen, shiftClick) {
     cell.setAttribute('active', 'true')
+    cell.setAttribute('chosen', 'false')
     cell.style.backgroundColor = 'yellow'
 
-    if (cellClicked === true) {
+
+    if (cellChosen === true) {
       cell.style.backgroundColor = 'green'
       cell.setAttribute('chosen', 'true')
       this._chosenTrack = Number(cell.getAttribute('row'))
@@ -558,7 +597,7 @@ class Sequencer extends window.HTMLElement {
     }
     //put in own function
     if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]){
-      if (this._trackInstrument[cell.getAttribute('row')] === 'synths' && cellClicked === true) {
+      if (this._trackInstrument[cell.getAttribute('row')] === 'synths' && cellChosen === true) {
         if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].getAttribute('type') === 'sample'){
           this._grid.removeChild(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0])
         }
@@ -571,7 +610,7 @@ class Sequencer extends window.HTMLElement {
         } else {
           this.changeCellNote(cell)
         }
-      } if (this._trackInstrument[cell.getAttribute('row')] !== 'synths' && cellClicked === true) {
+      } if (this._trackInstrument[cell.getAttribute('row')] !== 'synths' && cellChosen === true) {
           if(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].getAttribute('type') === 'synth'){
             this._grid.removeChild(this.shadowRoot.querySelectorAll('.changeNoteMenu')[0])
             this.changeCellNote(cell)

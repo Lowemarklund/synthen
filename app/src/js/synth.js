@@ -165,10 +165,14 @@
              triggeredKey = '´'
              break
          }
-         if (event.repeat === false && this._triggerKeys.includes(triggeredKey)) {
+
+         if (event.repeat === false && this._triggerKeys.includes(triggeredKey) && this._sequencer._loopLengthInput.getAttribute('focus') === 'false' && this._sequencer._bpmInput.getAttribute('focus') === 'false') {
            let key = this._keyboard.querySelector(`#key${triggeredKey}`)
            this.notePressed(key, triggeredKey)
            key.style.backgroundColor = '#599'
+         }else{
+          this._sequencer._loopLengthInput.setAttribute('focus', 'false')
+          this._sequencer._bpmInput.setAttribute('focus', 'false')
          }
        }
      })
@@ -204,7 +208,13 @@
      window.addEventListener("click", () =>{
        this._audioContext.resume()
      });
+
+     window.addEventListener("keydown", () =>{
+      this._audioContext.resume()
+    }); 
    }
+
+   
 
       /**
    * Creates array of pitches
