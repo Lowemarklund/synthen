@@ -138,14 +138,14 @@
      }
 
      this._ringModulatorControl.onchange = (event) => {
-      this._ringModulator.options[event.target.name] = Number(event.target.value)
-      this.effectsRouting(false)
-    }
+       this._ringModulator.options[event.target.name] = Number(event.target.value)
+       this.effectsRouting(false)
+     }
 
-    this._delayControl.onchange = (event) => {
-      this._delay.options[event.target.name] = Number(event.target.value)
-      this.effectsRouting(false)
-    }
+     this._delayControl.onchange = (event) => {
+       this._delay.options[event.target.name] = Number(event.target.value)
+       this.effectsRouting(false)
+     }
 
      window.addEventListener('keydown', event => {
        if (document.activeElement !== this._sequencer) {
@@ -170,9 +170,9 @@
            let key = this._keyboard.querySelector(`#key${triggeredKey}`)
            this.notePressed(key, triggeredKey)
            key.style.backgroundColor = '#599'
-         }else{
-          this._sequencer._loopLengthInput.setAttribute('focus', 'false')
-          this._sequencer._bpmInput.setAttribute('focus', 'false')
+         } else {
+           this._sequencer._loopLengthInput.setAttribute('focus', 'false')
+           this._sequencer._bpmInput.setAttribute('focus', 'false')
          }
        }
      })
@@ -205,16 +205,14 @@
        }
      }, false)
 
-     window.addEventListener("click", () =>{
+     window.addEventListener('click', () => {
        this._audioContext.resume()
-     });
+     })
 
-     window.addEventListener("keydown", () =>{
-      this._audioContext.resume()
-    }); 
+     window.addEventListener('keydown', () => {
+       this._audioContext.resume()
+     })
    }
-
-   
 
       /**
    * Creates array of pitches
@@ -536,15 +534,14 @@
      }
    }
 
-  resumeAudio(){
-    if(typeof this._audioContext === "undefined" || this._audioContext === null){
-      return;
-    } 
-    if(this._audioContext.state === "suspended"){
-      this._audioContext.resume();
-    } 
- }    
-
+   resumeAudio () {
+     if (typeof this._audioContext === 'undefined' || this._audioContext === null) {
+       return
+     }
+     if (this._audioContext.state === 'suspended') {
+       this._audioContext.resume()
+     }
+   }
 }
 
  window.customElements.define('synth-element', Synth)
