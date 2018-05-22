@@ -2630,7 +2630,7 @@ class Sequencer extends window.HTMLElement {
     if(!loopLength){
       let loopLength = Number(this.getAttribute('looplength'))
     }
-
+    
     let column = 0
     let row = 1
     let maxRows = 8
@@ -3438,7 +3438,7 @@ module.exports = Sequencer
    createNoteTable (octave) {
      let noteFreq = []
 
-     for (let i = 0; i < 8; i++) {
+     for (let i = 0; i < 7; i++) {
        noteFreq[octave + i] = []
      }
 
@@ -3467,13 +3467,14 @@ module.exports = Sequencer
 
    createKeyboard (octave) {
      let keyIndex = 0
+     let whiteKeys = document.createElement('div')
+     let blackKeys = document.createElement('div')
+     let octaveElem = document.createElement('div')
 
      this._noteFreq.forEach((keys, i1) => {
        if (i1 <= octave + 1 && i1 >= octave) {
          let keyList = Object.entries(keys)
-         let whiteKeys = document.createElement('div')
-         let blackKeys = document.createElement('div')
-         let octaveElem = document.createElement('div')
+         
          octaveElem.className = 'octave'
 
          keyList.forEach((key, i2) => {
@@ -3488,9 +3489,11 @@ module.exports = Sequencer
 
          octaveElem.appendChild(blackKeys)
          octaveElem.appendChild(whiteKeys)
+
          this._keyboard.appendChild(octaveElem)
        }
      })
+     return octaveElem
    }
 
    setup () {
@@ -3518,6 +3521,7 @@ module.exports = Sequencer
      keyElement.dataset['octave'] = octave
      keyElement.dataset['note'] = note
      keyElement.dataset['frequency'] = freq
+     keyElement.setAttribute('keyElement', 'true')
 
      if (note.length > 1) {
        keyElement.setAttribute('class', 'sharpKey')

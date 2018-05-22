@@ -1,7 +1,7 @@
 let sequencer = document.querySelector('grid-sequencer')
 sequencer.removeGrid()
 
-describe("Grid", function() {
+describe("Sequencer", function() {
   let grid = sequencer.renderGrid(14)
   let cells = grid.querySelectorAll('.cell')
     describe("Render grid ", function() {
