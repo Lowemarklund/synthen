@@ -548,7 +548,7 @@ class Sequencer extends window.HTMLElement {
   cellDeactivate (cell) {
     cell.setAttribute('active', 'false')
     cell.setAttribute('chosen', 'false')
-    cell.style.backgroundColor = 'white'
+    cell.style.backgroundColor = 'transparent'
   }
   /**
    * Deactivates a cell in the grid
@@ -559,9 +559,12 @@ class Sequencer extends window.HTMLElement {
     cell.setAttribute('active', 'true')
     cell.setAttribute('chosen', 'false')
     cell.style.backgroundColor = 'yellow'
+    cell.style.border = "2px solid white"
 
     if (cellChosen === true) {
+      debugger
       cell.style.backgroundColor = 'green'
+      cell.style.border = "2px solid white"
       cell.setAttribute('chosen', 'true')
       this._chosenTrack = Number(cell.getAttribute('row'))
       // put in own function
@@ -601,7 +604,6 @@ class Sequencer extends window.HTMLElement {
           this.shadowRoot.querySelectorAll('.noteSelectionMenu')[0].children[1].value = cell.getAttribute('note')
           this.shadowRoot.querySelectorAll('.octaveSelectionMenu')[0].children[1].value = cell.getAttribute('octave')
           this.shadowRoot.querySelectorAll('.noteLengthInput')[0].children[1].value = cell.getAttribute('noteLength')
-          cell.style.border = 'green'
         } else {
           this.changeCellNote(cell)
         }
@@ -614,7 +616,6 @@ class Sequencer extends window.HTMLElement {
         if (this.shadowRoot.querySelectorAll('.changeNoteMenu')[0]) {
           this.shadowRoot.querySelectorAll('.changeNoteMenu')[0].setAttribute('assignedCell', cell.id)
           this.shadowRoot.querySelector("input[name='samplePitch']").value = cell.getAttribute('samplePitch')
-          cell.style.border = 'green'
         } else {
           this.changeCellNote(cell)
         }

@@ -19,7 +19,7 @@ template.innerHTML =
     
     <style>
         .sequencer {
-
+            color: white;
             font-family: avenir;
             text-align: center;
             user-drag: none; 
@@ -44,9 +44,11 @@ template.innerHTML =
             text-align: center;
             margin-right: 5px;
             width: auto;
+
         }
 
         .logs div {
+
             display: inline-block;
             text-align: center;
             margin-left: 70px;
@@ -64,6 +66,7 @@ template.innerHTML =
         }
 
         .inputs input{
+            color: white;
             text-align: center;
             margin: 10px;
             margin-left: 9px;
@@ -71,21 +74,27 @@ template.innerHTML =
             margin-top: 5px;
             font-size: 8px;
             width: 200px;
+            background: transparent;
+
         }
+
+       ::placeholder {
+           color: white;
+       }
 
         .grid {
             text-align: center;  
         }
 
         .cell {
-            height: 15px;
-            width: 15px;
+            height: 12px;
+            width: 12px;
             position: relative;
-            box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
             padding: 5px;
-            margin: 1px;
-            border-radius: 3px;
-            background: white;
+            margin: 2px;
+            margin-top: -2px;
+            background: transparent;
+            border: 2px solid white;
         }
 
         .instrumentIcon{
@@ -121,6 +130,7 @@ template.innerHTML =
         .changeNoteMenu {
             display: inline-block;
         }
+
     </style>
 </div>
 `

@@ -197,10 +197,10 @@
        if (this._triggerKeys.includes(triggeredKey)) {
          let key = this._keyboard.querySelector(`#key${triggeredKey}`)
          this.noteReleased(key, triggeredKey)
-         key.style.backgroundColor = 'white'
+         key.style.backgroundColor = 'transparent'
 
          if (key.getAttribute('class') === 'sharpKey') {
-           key.style.backgroundColor = 'black'
+           key.style.backgroundColor = 'white'
          }
        }
      }, false)

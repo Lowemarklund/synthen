@@ -85,6 +85,7 @@ template.innerHTML =
 <div>
     <style>
       .synth {
+        color: white;
         height: 110px;
         white-space: nowrap;
         margin-left: 10px;
@@ -100,17 +101,17 @@ template.innerHTML =
       }
       
       .key {
+        margin-right: -2px;
+        color: white;
         position: static;
         cursor: pointer;
         font: 10px "Open Sans", "Lucida Grande", "Arial", sans-serif;
-        border: 1px solid black;
-        border-radius: 5px;
+        border: 2px solid white;
+        border-radius: px;
         width: 20px;
         height: 150px;
         padding: 10px;
         text-align: center;
-        background-color: white;
-        box-shadow: 2px 2px darkgray;
         display: inline-block;
         line-height: 270px;
         user-select: none;
@@ -118,6 +119,7 @@ template.innerHTML =
         -webkit-user-select: none;
         -ms-user-select: none;
         box-shadow:0 0 10px rgba(0,0,0,0.5) inset
+        background: transparent;
       }
       
       .key div {
@@ -168,7 +170,6 @@ template.innerHTML =
         height: 75px;
         padding: 10px;
         text-align: center;
-        box-shadow: 2px 2px darkgray;
         display: inline-block;
         position: relative;
         margin-bottom: -300px;
@@ -177,23 +178,22 @@ template.innerHTML =
         -moz-user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
-        background-color: black;
-        color: white;
+        background-color: white;
+        color: #599;
         margin-left: 25px;
-        top: 25px;
-        border:1px solid #000;
+        top: 26px;
+        border: 2px solid white;
         border-radius:0 0 3px 3px;
-        box-shadow:-1px -1px 2px rgba(255,255,255,0.2) inset, 0 -5px 2px 3px rgba(0,0,0,0.6) inset, 0 2px 4px rgba(0,0,0,0.5);
-        background:linear-gradient(45deg, #222 0%,#555 100%);
- 
+
       }
-      .sharpKey:active {
-        box-shadow:-1px -1px 2px rgba(255,255,255,0.2) inset, 0 -5px 2px 3px rgba(0,0,0,0.6) inset, 0 2px 4px rgba(0,0,0,0.5);
-        background:linear-gradient(45deg, #599 0%,#555 100%);
+      .sharpKey:active div{
+        color: white;
+        background-color: #599;
+ 
       }
 
       #key1{
-        left: 2px;
+        left: 1px;
       }
 
       #key2{
@@ -201,36 +201,36 @@ template.innerHTML =
       }
 
       #key4{
-        left: 13px;
+        left: 9px;
       }
 
       #key5{
-        left: -2px;
+        left: -6px;
       }
 
       #key6{
-        left: -16px;
+        left: -21px;
       }
 
       #key8{
-        left: 10px;
+        left: 2px;
       }
 
       #key9{
-        left: -5px;
+        left: -15px;
       }
 
       #key0{
-        left: 22px;
+        left: 8px;
       }
 
       #key´{
-        left: 7px;
+        left: -7px;
       }
 
       #key⟵{
-        left: -7px;
-        top: 26px;
+        left: -23px;
+        top: 27px;
       }
 
       .modulationInput{
