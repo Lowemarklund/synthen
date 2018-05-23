@@ -4,88 +4,83 @@ const effectSection = effectTemplate.template.innerHTML
 
 template.innerHTML =
 `<div class="synth">
-    <div class="keyboard">
-      <div class="settingsBar">
-      <div class="modulationSection">
-        <div class="volumeInput">
-          <span>Volume: </span>
-          <input type="range" min="0.0" max="1.0" step="0.01"
-              value="0.5" list="volumes" name="volume">
-          <datalist id="volumes">
-            <option value="0.0" label="Mute">
-            <option value="1.0" label="100%">
-          </datalist>
-        </div>
-        <span>Carrier Gain: </span>
-        <input type="range" min="0" max="3000" step="1"
-            value="1" list="carrierGain" name="carrierGain">
-        <div class="modulationInput">
-            <span>Modulation Freq: </span>
-            <input type="range" min="1" max="1500" step="1"
-                value="750" list="modulationFreq" name="modulationFreq">
-            <span>Modulation Depth: </span>
-            <input type="range" min="0" max="1" step="0.01"
-                value="0" list="modulationDepth" name="modulationDepth">
-        </div>
-        <div class="modulationInput">
-          <span>Modulation 2 Freq: </span>
-          <input type="range" min="1" max="1500" step="1"
-              value="750" list="modulation2Freq" name="modulation2Freq">
-          <span>Modulation 2 Depth: </span>
-          <input type="range" min="0" max="1" step="0.01"
-              value="0" list="modulation2Depth" name="modulation2Depth">
-          
-        </div>
-        <div class="right">
-          <span>Carrier waveform: </span>
-          <select name="waveform">
-            <option value="sine">Sine</option>
-            <option value="square" selected>Square</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="triangle">Triangle</option>
-          </select>
-          <span> Mod1 waveform: </span>
-          <select name="waveform2">
-            <option value="sine">Sine</option>
-            <option value="square" selected>Square</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="triangle">Triangle</option>
-          </select>
-          <span> Mod2 waveform: </span>
-          <select name="waveform3">
-            <option value="sine">Sine</option>
-            <option value="square" selected>Square</option>
-            <option value="sawtooth">Sawtooth</option>
-            <option value="triangle">Triangle</option>
-          </select>
-        </div>
-        <div>
-        <span>Keyboard octave: </span>
-        <select name="octave" class="octaveControl">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3" selected>3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-        </select>
-        </div>
-        </div>
-        <div class="synthEffects">${effectSection}</div>
-        <div class="trackEffectControl">
-            <div class="trackEffectSection" id="track1Effects">${effectSection}</div>
-            <div class="trackEffectSection" id="track2Effects">${effectSection}</div>
-            <div class="trackEffectSection" id="track3Effects">${effectSection}</div>
-            <div class="trackEffectSection" id="track4Effects">${effectSection}</div>
-            <div class="trackEffectSection" id="track5Effects">${effectSection}</div>
-            <div class="trackEffectSection" id="track6Effects">${effectSection}</div>
-            <div class="trackEffectSection" id="track7Effects">${effectSection}</div>
-        </div>
-       
-        </div>
-    </div>
-  </div>
+<div class="modulationSection">
+<div class="volumeInput">
+  <span>Volume: </span>
+  <input type="range" min="0.0" max="1.0" step="0.01"
+      value="0.5" list="volumes" name="volume">
+<span>Carrier Gain: </span>
+<input type="range" min="0" max="3000" step="1"
+    value="1" list="carrierGain" name="carrierGain">
+<div class="modulationInput">
+    <span>Modulation Freq: </span>
+    <input type="range" min="1" max="1500" step="1"
+        value="750" list="modulationFreq" name="modulationFreq">
+    <span>Modulation Depth: </span>
+    <input type="range" min="0" max="1" step="0.01"
+        value="0" list="modulationDepth" name="modulationDepth">
+</div>
+</div>
+<div class="modulationInput">
+  <span>Modulation 2 Freq: </span>
+  <input type="range" min="1" max="1500" step="1"
+      value="750" list="modulation2Freq" name="modulation2Freq">
+  <span>Modulation 2 Depth: </span>
+  <input type="range" min="0" max="1" step="0.01"
+      value="0" list="modulation2Depth" name="modulation2Depth">
+  
+</div>
+<div class="right">
+  <span>Carrier waveform: </span>
+  <select name="waveform">
+    <option value="sine">Sine</option>
+    <option value="square" selected>Square</option>
+    <option value="sawtooth">Sawtooth</option>
+    <option value="triangle">Triangle</option>
+  </select>
+  <span> Mod1 waveform: </span>
+  <select name="waveform2">
+    <option value="sine">Sine</option>
+    <option value="square" selected>Square</option>
+    <option value="sawtooth">Sawtooth</option>
+    <option value="triangle">Triangle</option>
+  </select>
+  <span> Mod2 waveform: </span>
+  <select name="waveform3">
+    <option value="sine">Sine</option>
+    <option value="square" selected>Square</option>
+    <option value="sawtooth">Sawtooth</option>
+    <option value="triangle">Triangle</option>
+  </select>
+</div>
+<div>
+<span>Keyboard octave: </span>
+<select name="octave" class="octaveControl">
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3" selected>3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="7">7</option>
+</select>
+</div>
+</div>
+<div class="settingsBar">
+
+   <div class="synthEffects">${effectSection}</div>
+   <div class="trackEffectControl">
+       <div class="trackEffectSection" id="track1Effects">${effectSection}</div>
+       <div class="trackEffectSection" id="track2Effects">${effectSection}</div>
+       <div class="trackEffectSection" id="track3Effects">${effectSection}</div>
+       <div class="trackEffectSection" id="track4Effects">${effectSection}</div>
+       <div class="trackEffectSection" id="track5Effects">${effectSection}</div>
+       <div class="trackEffectSection" id="track6Effects">${effectSection}</div>
+       <div class="trackEffectSection" id="track7Effects">${effectSection}</div>
+   </div>
+   </div>
+</div>
+    <div class="keyboard"></div>
   <div>
 <div>
     <style>
@@ -99,27 +94,30 @@ template.innerHTML =
         height: 100px;
         padding: 10px;
         margin: 20px;
-        position: relative;
-       
+        margin-top: -120px;
+        margin-left: 20px;
+        position: absolute;
       }
       
       .key {
+        position: static;
         cursor: pointer;
         font: 10px "Open Sans", "Lucida Grande", "Arial", sans-serif;
         border: 1px solid black;
         border-radius: 5px;
         width: 20px;
-        height: 80px;
+        height: 150px;
         padding: 10px;
         text-align: center;
+        background-color: white;
         box-shadow: 2px 2px darkgray;
         display: inline-block;
-        position: relative;
-        margin-right: 3px;
+        line-height: 270px;
         user-select: none;
         -moz-user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
+        box-shadow:0 0 10px rgba(0,0,0,0.5) inset
       }
       
       .key div {
@@ -140,15 +138,9 @@ template.innerHTML =
         color: #fff;
       }
 
-      .sharpKey:active {
-        background-color: #599;
-        color: #fff;
-      }
 
       .octaveControl {
         margin-top: 10px;
-        display: inline-block;
-
       }
       
       .octave {
@@ -157,16 +149,6 @@ template.innerHTML =
 
       }
       
-      .settingsBar {
-        float: right;
-        margin-left: 30px;
-        margin-top: -175px;
-        padding: 20px;
-        font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
-        position: flexible;
-        height: auto;
-        width: auto;
-      }
       .right {
         margin-top: 10px;
         text-align: left;
@@ -174,6 +156,7 @@ template.innerHTML =
 
       .volumeInput{
         text-align: left;
+        display: table-cell;
       }
 
       .sharpKey {
@@ -182,20 +165,72 @@ template.innerHTML =
         border: 1px solid black;
         border-radius: 5px;
         width: 10px;
-        height: 80px;
+        height: 75px;
         padding: 10px;
         text-align: center;
         box-shadow: 2px 2px darkgray;
         display: inline-block;
         position: relative;
-        margin-right: 3px;
+        margin-bottom: -300px;
+        margin-top: 0px;
         user-select: none;
         -moz-user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
         background-color: black;
         color: white;
-        margin-left: 20px;
+        margin-left: 25px;
+        top: 25px;
+        border:1px solid #000;
+        border-radius:0 0 3px 3px;
+        box-shadow:-1px -1px 2px rgba(255,255,255,0.2) inset, 0 -5px 2px 3px rgba(0,0,0,0.6) inset, 0 2px 4px rgba(0,0,0,0.5);
+        background:linear-gradient(45deg, #222 0%,#555 100%);
+ 
+      }
+      .sharpKey:active {
+        box-shadow:-1px -1px 2px rgba(255,255,255,0.2) inset, 0 -5px 2px 3px rgba(0,0,0,0.6) inset, 0 2px 4px rgba(0,0,0,0.5);
+        background:linear-gradient(45deg, #599 0%,#555 100%);
+      }
+
+      #key1{
+        left: 2px;
+      }
+
+      #key2{
+        left: -14px;
+      }
+
+      #key4{
+        left: 13px;
+      }
+
+      #key5{
+        left: -2px;
+      }
+
+      #key6{
+        left: -16px;
+      }
+
+      #key8{
+        left: 10px;
+      }
+
+      #key9{
+        left: -5px;
+      }
+
+      #key0{
+        left: 22px;
+      }
+
+      #key´{
+        left: 7px;
+      }
+
+      #key⟵{
+        left: -7px;
+        top: 26px;
       }
 
       .modulationInput{
@@ -207,14 +242,14 @@ template.innerHTML =
         margin-top: 10px;
       }
 
-      .effectSettings {
-        margin-top: 20px;
-        
+      .effect {
+        display: table-cell;
+        margin: 40px;
       }
 
-      .effect {
-        margin-top: 20px;
-        display: inline-block;
+      .effect input{
+        width: 200px;
+        margin-right: 20px;
       }
 
       .trackEffectSection{
@@ -222,8 +257,40 @@ template.innerHTML =
           margin-left: 10px;
       }
 
-      .synthEffects {
+      .modulationSection {
+        float: left;
+        margin-right: -30px;
+        margin-top: -150px;
+        padding: 20px;
+        font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
+        position: relative;
+        height: auto;
+        width: auto;
+      }
 
+      .settingsBar {
+        float: right;
+        padding: 20px;
+        margin-top: -140px;
+        margin-left: 10px;
+        font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
+        position: relative;
+        height: auto;
+        width: auto;
+      }
+
+      #tremolo{
+        margin-top: -200px;
+        margin-right: 300px;
+      }
+
+      #flanger input{
+        width: 300px;
+      }
+      #flanger{
+        margin-top: 20px;
+        margin-bottom: 10px;
+        margin-left: 90px;
       }
     </style>
 </div>

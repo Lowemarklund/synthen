@@ -578,7 +578,6 @@ class Sequencer extends window.HTMLElement {
 
       if (this._trackInstrument[cell.getAttribute('row')] !== 'synths') {
         effectSections[this._chosenTrack - 1].style.display = 'inherit'
-        synthSection.modulation.style.display = 'none'
         synthSection.effects.style.display = 'none'
       } else {
         synthSection.modulation.style.display = 'inherit'

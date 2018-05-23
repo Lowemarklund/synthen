@@ -14,13 +14,12 @@ template.innerHTML =
     <div class="grid"></div>
     <img class="pausePlayButton" type="play" src="/image/icons8-play-button-50.png" alt="pause/play icon">
     <div class="info">Click icons and numbers to change track sound</div>
+    <div class="info">Shift + click to choose activated cells </div>
     <button class="clearButton">Clear Grid</button>
     
     <style>
         .sequencer {
-            margin-left: 30px;
-            margin-right: 20px;
-            width: 500;
+
             font-family: avenir;
             text-align: center;
             user-drag: none; 
@@ -29,12 +28,17 @@ template.innerHTML =
             -khtml-user-select: none;
             -webkit-user-select: none;
             -o-user-select: none;
+            margin: auto;
+            width: 50%;
+            padding: 10px;
         }
+
         .instrumentLog {
             text-align: center;
             font-size: 30px;
             margin: 10px;
             font-family: avenir;
+
         }
         .logs {
             text-align: center;
