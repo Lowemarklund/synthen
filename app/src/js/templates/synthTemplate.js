@@ -241,6 +241,7 @@ template.innerHTML =
       .effect input{
         width: 200px;
         margin-right: 20px;
+
       }
 
       .trackEffectSection{
@@ -266,7 +267,7 @@ template.innerHTML =
         margin-left: 10px;
         font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
         position: relative;
-        height: auto;
+        height: 400px;
         width: auto;
       }
 
@@ -281,7 +282,7 @@ template.innerHTML =
       #flanger{
         margin-top: 20px;
         margin-bottom: 10px;
-        margin-left: 90px;
+        margin-left: 200px;
       }
 
       input[type=range] {

@@ -156,6 +156,7 @@ class Sequencer extends window.HTMLElement {
     this._startGainNode.connect(this._out)
     this.effectsRouting(true)
     this._chosenTrack = 8
+    this.changeCellNote(this._cells[224])
   }
 
      /**
@@ -648,7 +649,6 @@ class Sequencer extends window.HTMLElement {
     let noteLengthInput = document.createElement('div')
     let sampleLengthInput = document.createElement('div')
     let samplePitchInput = document.createElement('div')
-    let closeButton = document.createElement('div')
 
     changeNoteMenu.setAttribute('class', 'changeNoteMenu')
     noteSelectionMenu.setAttribute('class', 'noteSelectionMenu')
@@ -701,20 +701,17 @@ class Sequencer extends window.HTMLElement {
 
     changeNoteMenu.setAttribute('assignedcell', cell.id)
 
-    closeButton.innerText = 'x'
 
     if (this._trackInstrument[cell.getAttribute('row')] === 'synths') {
       changeNoteMenu.appendChild(noteSelectionMenu)
       changeNoteMenu.appendChild(octaveSelectionMenu)
       changeNoteMenu.appendChild(noteLengthInput)
-      changeNoteMenu.appendChild(closeButton)
       cell.parentNode.appendChild(changeNoteMenu)
       changeNoteMenu.setAttribute('type', 'synth')
     }
 
     if (this._trackInstrument[cell.getAttribute('row')] !== 'synths') {
       changeNoteMenu.appendChild(samplePitchInput)
-      changeNoteMenu.appendChild(closeButton)
       cell.parentNode.appendChild(changeNoteMenu)
       changeNoteMenu.setAttribute('type', 'sample')
     }
@@ -748,12 +745,6 @@ class Sequencer extends window.HTMLElement {
           }
         }
       })
-    }
-
-    closeButton.onclick = (event) => {
-      for (let i = 0; i < event.target.parentNode.children.length;) {
-        event.target.parentNode.removeChild(event.target.parentNode.children[i])
-      }
     }
   }
 

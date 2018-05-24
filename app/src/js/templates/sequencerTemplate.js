@@ -13,8 +13,8 @@ template.innerHTML =
     </div>
     <div class="grid"></div>
     <img class="pausePlayButton" type="play" src="/image/icons8-play-button-50.png" alt="pause/play icon">
-    <div class="info">Click icons and numbers to change track sound</div>
-    <div class="info">Shift + click to choose activated cells </div>
+    <div class="info"></div>
+    <div class="info">Shift + click to choose activated cells <br>Click icons and numbers to change track sound</div>
     <button class="clearButton">Clear Grid</button>
     
     <style>
@@ -58,6 +58,8 @@ template.innerHTML =
         .info {
             font-size: 10px;
             margin: 10px;
+            margin-top: 80px;
+            margin-left: 50px;
         }
 
         }
@@ -121,12 +123,17 @@ template.innerHTML =
 
         .pausePlayButton {
            margin-top: 10px;
-           margin-right: 0px;
+           left: 645px;
+           top: 355px;
+           position: absolute;
            width: 30px
+
+       
         }
 
         .clearButton {
             border: 2px solid white;
+            margin-left: 40px;
             text-align: center;
             color: white;
             background: transparent;
@@ -144,8 +151,17 @@ template.innerHTML =
           transform: translateY(4px);
         }
 
-        .changeNoteMenu {
+        .changeNoteMenu{
+            margin-top: 3px;
+            width: 75%;
+            position: absolute;
+            z-index: 1;
+
+        }
+        .changeNoteMenu div{
+
             display: inline-block;
+            margin-right: 10px;
         }
 
         input[type=range] {
@@ -153,8 +169,8 @@ template.innerHTML =
             -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
             background: transparent; /* Otherwise white in Chrome */
           }
-
-        input[type=range]::-webkit-slider-thumb {
+    
+          input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
             border: 1px solid #000000;
             height: 10px;
