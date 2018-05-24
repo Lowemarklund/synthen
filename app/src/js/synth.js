@@ -41,6 +41,7 @@
      this._modulationDepthControl = this.shadowRoot.querySelector("input[name='modulationDepth']")
      this._modulation2FreqControl = this.shadowRoot.querySelector("input[name='modulation2Freq']")
      this._modulation2DepthControl = this.shadowRoot.querySelector("input[name='modulation2Depth']")
+     this._modulationSection = this.shadowRoot.querySelector(".modulationSection")
      this._flangerControl = this.shadowRoot.querySelector('#flanger')
      this._tremoloControl = this.shadowRoot.querySelector('#tremolo')
      this._reverbControl = this.shadowRoot.querySelector('#reverb')
@@ -50,6 +51,12 @@
      this._audioContext = Pizzicato.context
      this._out = this._audioContext.destination
      this._effectsGainNode = this._audioContext.createGain()
+     this._carrier
+     this._modulator
+     this._modulator2
+     this._carrierGain
+     this._modulatorGain
+     this._modulator2Gain
      this._oscList = {}
      this._activeNotes = {
        1: null,
@@ -114,9 +121,13 @@
        this.createKeyboard(Number(this._octavePicker.value))
      }, false)
 
-     this._volumeControl.addEventListener('change', () => {
+     this._volumeControl.addEventListener('mousemove', () => {
        this.changeVolume()
      }, false)
+
+     this._modulationSection.addEventListener('mousemove', () => {
+      this.changeModulation()
+    }, false)
 
     //  this._lfoFrequency.addEventListener('change', () => {
     //    this.changeLfoFreq()
@@ -336,48 +347,48 @@
    }
 
    playTone (freq) {
-     let carrier = this._audioContext.createOscillator()
-     let modulator = this._audioContext.createOscillator()
-     let modulator2 = this._audioContext.createOscillator()
-     let carrierGain = this._audioContext.createGain()
-     let modulatorGain = this._audioContext.createGain()
-     let modulator2Gain = this._audioContext.createGain()
+     this._carrier = this._audioContext.createOscillator()
+     this._modulator = this._audioContext.createOscillator()
+     this._modulator2 = this._audioContext.createOscillator()
+     this._carrierGain = this._audioContext.createGain()
+     this._modulatorGain = this._audioContext.createGain()
+     this._modulator2Gain = this._audioContext.createGain()
 
-     carrierGain.gain.value = this._carrierGainControl.value
-     modulatorGain.gain.value = this._modulationDepthControl.value
-     modulator.frequency.value = this._modulationFreqControl.value
-     modulator2Gain.gain.value = this._modulation2DepthControl.value
-     modulator2.frequency.value = this._modulation2FreqControl.value
+     this._carrierGain.gain.value = this._carrierGainControl.value
+     this._modulatorGain.gain.value = this._modulationDepthControl.value
+     this._modulator.frequency.value = this._modulationFreqControl.value
+     this._modulator2Gain.gain.value = this._modulation2DepthControl.value
+     this._modulator2.frequency.value = this._modulation2FreqControl.value
 
       // frequency modulation routing
-     carrier.connect(carrierGain)
-     carrier.connect(this._effectsGainNode)
-     carrierGain.connect(modulator.frequency)
-     modulator.connect(modulatorGain)
-     modulatorGain.connect(this._effectsGainNode)
-     carrierGain.connect(modulator2.frequency)
-     modulator2.connect(modulator2Gain)
-     modulator2Gain.connect(this._effectsGainNode)
+    this._carrier.connect(this._carrierGain)
+    this._carrier.connect(this._effectsGainNode)
+    this._carrierGain.connect( this._modulator.frequency)
+    this._modulator.connect(this._modulatorGain)
+    this._modulatorGain.connect(this._effectsGainNode)
+    this._carrierGain.connect(this._modulator2.frequency)
+    this._modulator2.connect(this._modulator2Gain)
+    this._modulator2Gain.connect(this._effectsGainNode)
 
      let type = this._carrierWavePicker.options[this._carrierWavePicker.selectedIndex].value
      let type2 = this._modulatorWavePicker.options[this._modulatorWavePicker.selectedIndex].value
      let type3 = this._modulator2WavePicker.options[this._modulator2WavePicker.selectedIndex].value
 
      if (type === 'custom') {
-       carrier.setPeriodicWave(this._customWaveform)
+      this._carrier.setPeriodicWave(this._customWaveform)
      } else {
-       carrier.type = type
-       modulator.type = type2
-       modulator2.type = type3
+      this._carrier.type = type
+      this._modulator.type = type2
+      this._modulator2.type = type3
      }
 
-     carrier.frequency.value = freq
+     this._carrier.frequency.value = freq
 
-     carrier.start()
-     modulator.start()
-     modulator2.start()
+     this._carrier.start()
+     this._modulator.start()
+     this._modulator2.start()
 
-     return [carrier, modulator, modulator2]
+     return [this._carrier, this._modulator, this._modulator2]
    }
 
    notePressed (keyElement, id, cell) {
@@ -435,6 +446,14 @@
    changeVolume () {
      this._masterGainNode.gain.value = this._volumeControl.value
    }
+
+  changeModulation () {
+    this._carrierGain.gain.value = this._carrierGainControl.value
+    this._modulatorGain.gain.value = this._modulationDepthControl.value
+    this._modulator.frequency.value = this._modulationFreqControl.value
+    this._modulator2Gain.gain.value = this._modulation2DepthControl.value
+    this._modulator2.frequency.value = this._modulation2FreqControl.value
+  }
 
    changeLfoFreq () {
 
