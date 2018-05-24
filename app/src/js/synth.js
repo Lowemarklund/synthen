@@ -148,7 +148,7 @@
      }
 
      window.addEventListener('keydown', event => {
-       if (document.activeElement !== this._sequencer) {
+       if (document.activeElement !== this._sequencer && event.key !== ' ') {
          event.preventDefault()
          let triggeredKey = event.key
          switch (event.code) {
@@ -169,7 +169,11 @@
          if (event.repeat === false && this._triggerKeys.includes(triggeredKey) && this._sequencer._loopLengthInput.getAttribute('focus') === 'false' && this._sequencer._bpmInput.getAttribute('focus') === 'false') {
            let key = this._keyboard.querySelector(`#key${triggeredKey}`)
            this.notePressed(key, triggeredKey)
-           key.style.backgroundColor = '#599'
+           key.style.background = 'linear-gradient(45deg, #599 30%, #0c618f 100%)'
+           
+           if (key.getAttribute('class') === 'sharpKey') {
+            key.style.background = 'linear-gradient(45deg, #599 0%,#555 100%)'
+          }
          } else {
            this._sequencer._loopLengthInput.setAttribute('focus', 'false')
            this._sequencer._bpmInput.setAttribute('focus', 'false')
@@ -197,10 +201,10 @@
        if (this._triggerKeys.includes(triggeredKey)) {
          let key = this._keyboard.querySelector(`#key${triggeredKey}`)
          this.noteReleased(key, triggeredKey)
-         key.style.backgroundColor = 'transparent'
+         key.style.background = 'transparent'
 
          if (key.getAttribute('class') === 'sharpKey') {
-           key.style.backgroundColor = 'white'
+           key.style.background = 'linear-gradient(45deg, #222 0%,#555 100%)'
          }
        }
      }, false)
@@ -530,12 +534,18 @@
      this._analyser.connect(this._masterGainNode)
 
      if (oldReverb !== undefined) {
-       oldReverb.disconnect()
-       oldFlanger.disconnect()
-       oldDelay.disconnect()
-       oldRingModulator.disconnect()
-       oldTremolo.disconnect()
-     }
+      oldFlanger.disconnect()
+      oldTremolo.disconnect()
+      oldRingModulator.disconnect()
+      this._effectsGainNodes[track - 1].connect(oldDelay)
+      setTimeout(() => {
+        oldDelay.disconnect()
+        this._effectsGainNodes[track - 1].connect(oldReverb)
+      }, oldDelay.options.time * 1000)
+      setTimeout(() => {
+        oldReverb.disconnect()
+      }, oldReverb.options.time * 1000)
+    }
    }
 
    resumeAudio () {

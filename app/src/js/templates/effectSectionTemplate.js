@@ -5,7 +5,7 @@ template.innerHTML =
 `
 <div class="effectSettings"
     <div class="effect" id="flanger">
-        <span>Flanger </span>
+        <span><b>Flanger</b></span>
         <br>
         <span>Time: </span>
         <input type="range" min="0.0" max="1.0" step="0.01"
@@ -29,14 +29,14 @@ template.innerHTML =
     </div>
 
     <div class="effect" id="tremolo">
-    <span>Tremolo </span>
+    <span><b>Tremolo</b> </span>
     <br>
     <span>Depth: </span>
-    <input type="range" min="0.0" max="20" step="0.01"
+    <input type="range" min="0.0" max="1" step="0.01"
         value="0" list="tremoloDepth" name="depth">
     <br>
     <span>Speed: </span>
-    <input type="range" min="0.0" max="1000" step="1"
+    <input type="range" min="0.0" max="20" step="0.1"
         value="0" list="tremoloSpeed" name="speed">
     <br>
     <span>Mix: </span>
@@ -45,7 +45,7 @@ template.innerHTML =
     </div>   
 
     <div class="effect" id="reverb">
-    <span>Reverb </span>
+    <span><b>Reverb</b></span>
     <br>
     <span>time: </span>
     <input type="range" min="0.0" max="3" step="0.01"
@@ -63,7 +63,7 @@ template.innerHTML =
     <br>
 
     <div class="effect" id="delay">
-    <span>Delay </span>
+    <span><b>Delay</b> </span>
     <br>
     <span>Volume: </span>
     <input type="range" min="0.0" max="5" step="0.1"
@@ -84,7 +84,7 @@ template.innerHTML =
     </div>
 
     <div class="effect" id="ringModulator">
-    <span>Ring Modulator </span>
+    <span><b>Ring Modulator</b> </span>
     <br>
     <span>Speed: </span>
     <input type="range" min="0.0" max="2000" step="1"

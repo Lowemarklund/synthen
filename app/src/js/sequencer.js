@@ -135,8 +135,8 @@ class Sequencer extends window.HTMLElement {
    * @memberof Sequencer
    */
   connectedCallback () {
-    this.setAttribute('looplength', '16')
-    this.renderGrid(16)
+    this.setAttribute('looplength', '32')
+    this.renderGrid(32)
     this.inputListen()
     this._trackSamples['1'].src = '/audio/drums/kicks/1.wav'
     this._trackSamples['2'].src = '/audio/drums/snares/1.wav'
@@ -266,7 +266,7 @@ class Sequencer extends window.HTMLElement {
               this.parentNode.parentNode.querySelectorAll('grid-sequencer')[i]._bpmLog.innerText = 'BPM: ' + event.target.value
             }
             this._tempo = input
-            event.target.setAttribute('placeholder', 'Enter tempo (BPM) max = 300 min = 30')
+            event.target.setAttribute('placeholder', 'Enter tempo (BPM max = 300 min = 30)')
             event.target.value = null
             event.target.blur()
           }
@@ -283,10 +283,28 @@ class Sequencer extends window.HTMLElement {
           }
         }
       }
+
     })
 
     window.addEventListener('click', () => {
       this._audioContext.resume()
+    })
+
+    window.addEventListener('keydown', () => {
+      if(event.key === ' '){ 
+        if (this._pausePlayButton.getAttribute('type') === 'play') {
+          // syncs with other sequencers
+          this.timeSync()
+          this._isPlaying = true
+        } else {
+          for (let i = 0; i < this.parentNode.parentNode.querySelectorAll('grid-sequencer').length; i++) {
+            clearInterval(this.parentNode.parentNode.querySelectorAll('grid-sequencer')[i]._click)
+            this.parentNode.parentNode.querySelectorAll('grid-sequencer')[i]._pausePlayButton.setAttribute('type', 'play')
+            this.parentNode.parentNode.querySelectorAll('grid-sequencer')[i]._pausePlayButton.setAttribute('src', '/image/icons8-play-button-50.png')
+            this.parentNode.parentNode.querySelectorAll('grid-sequencer')[i]._isPlaying = false
+          }
+        }
+      }
     })
 
     this._effectsControl.onchange = (event) => {
@@ -437,7 +455,6 @@ class Sequencer extends window.HTMLElement {
 
       for (let i2 = 0; i2 < this._storedGrid[Number(this._cells[i].getAttribute('row'))].length; i2++) {
         if (this._storedGrid[Number(this._cells[i].getAttribute('row'))][i2].column === this._cells[i].getAttribute('column')) {
-          debugger
           let storedCell = this._storedGrid[Number(this._cells[i].getAttribute('row'))][i2]
           this._cells[i].setAttribute('column', storedCell.column)
           this._cells[i].setAttribute('note', storedCell.note)
@@ -562,7 +579,6 @@ class Sequencer extends window.HTMLElement {
     cell.style.border = "2px solid white"
 
     if (cellChosen === true) {
-      debugger
       cell.style.backgroundColor = 'green'
       cell.style.border = "2px solid white"
       cell.setAttribute('chosen', 'true')

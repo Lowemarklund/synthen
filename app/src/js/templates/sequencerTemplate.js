@@ -5,10 +5,10 @@ template.innerHTML =
 `<div class="sequencer">
     <div class="logs">
         <div class="bpmLog">BPM: 150</div>
-        <div class="loopLengthLog">Length: 16 </div>
+        <div class="loopLengthLog">Length: 32 </div>
     </div>
     <div class="inputs">
-        <input class="bpmInput" placeholder="Enter tempo (BPM) max = 300 min = 30" focus="false"></input>
+        <input class="bpmInput" placeholder="Enter tempo (BPM max = 300 min = 30)" focus="false"></input>
         <input class="loopLengthInput" placeholder="Enter loop length (max = 32 min = 1)" focus="false"></input>
     </div>
     <div class="grid"></div>
@@ -66,6 +66,7 @@ template.innerHTML =
         }
 
         .inputs input{
+            border: 2px solid white;
             color: white;
             text-align: center;
             margin: 10px;
@@ -75,7 +76,7 @@ template.innerHTML =
             font-size: 8px;
             width: 200px;
             background: transparent;
-
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.1);
         }
 
        ::placeholder {
@@ -95,6 +96,7 @@ template.innerHTML =
             margin-top: -2px;
             background: transparent;
             border: 2px solid white;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.1);
         }
 
         .instrumentIcon{
@@ -124,12 +126,73 @@ template.innerHTML =
         }
 
         .clearButton {
-            text-align: left;
+            border: 2px solid white;
+            text-align: center;
+            color: white;
+            background: transparent;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            outline: none;
+        }
+
+        .clearButton:hover {
+            background: #599;
+        }
+        
+        .clearButton:active {
+          background: red;
+          box-shadow: 0 5px #666;
+          transform: translateY(4px);
         }
 
         .changeNoteMenu {
             display: inline-block;
         }
+
+        input[type=range] {
+            outline: none;
+            -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+            background: transparent; /* Otherwise white in Chrome */
+          }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            border: 1px solid #000000;
+            height: 10px;
+            width: 3px;
+            border-radius: 3px;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+          }
+    
+          input[type=range]::-webkit-slider-runnable-track {
+            cursor: pointer;
+            margin: 1px;
+            margin-right: 3px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            background: transparent;
+            border: 2px solid white;
+          }
+    
+         
+          select {
+            outline: none;
+            position: relative;
+            background: transparent;
+            border-radius: 0px;
+            border: 2px solid white;
+            color: white;
+            margin-left: 1px;
+            margin-right: 5px;
+          }
+    
+          select-items div, select-selected {
+            color: #ffffff;
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+            cursor: pointer;
+          }
 
     </style>
 </div>

@@ -15,7 +15,7 @@ template.innerHTML =
 <div class="modulationInput">
     <span>Modulation Freq: </span>
     <input type="range" min="1" max="1500" step="1"
-        value="750" list="modulationFreq" name="modulationFreq">
+        value="0" list="modulationFreq" name="modulationFreq">
     <span>Modulation Depth: </span>
     <input type="range" min="0" max="1" step="0.01"
         value="0" list="modulationDepth" name="modulationDepth">
@@ -24,7 +24,7 @@ template.innerHTML =
 <div class="modulationInput">
   <span>Modulation 2 Freq: </span>
   <input type="range" min="1" max="1500" step="1"
-      value="750" list="modulation2Freq" name="modulation2Freq">
+      value="0" list="modulation2Freq" name="modulation2Freq">
   <span>Modulation 2 Depth: </span>
   <input type="range" min="0" max="1" step="0.01"
       value="0" list="modulation2Depth" name="modulation2Depth">
@@ -32,21 +32,21 @@ template.innerHTML =
 </div>
 <div class="right">
   <span>Carrier waveform: </span>
-  <select name="waveform">
+  <select name="waveform" class="synthOptionBox">
     <option value="sine">Sine</option>
     <option value="square" selected>Square</option>
     <option value="sawtooth">Sawtooth</option>
     <option value="triangle">Triangle</option>
   </select>
   <span> Mod1 waveform: </span>
-  <select name="waveform2">
+  <select name="waveform2" class="synthOptionBox">
     <option value="sine">Sine</option>
     <option value="square" selected>Square</option>
     <option value="sawtooth">Sawtooth</option>
     <option value="triangle">Triangle</option>
   </select>
   <span> Mod2 waveform: </span>
-  <select name="waveform3">
+  <select name="waveform3" class="synthOptionBox"> 
     <option value="sine">Sine</option>
     <option value="square" selected>Square</option>
     <option value="sawtooth">Sawtooth</option>
@@ -55,7 +55,7 @@ template.innerHTML =
 </div>
 <div>
 <span>Keyboard octave: </span>
-<select name="octave" class="octaveControl">
+<select name="octave" class="synthOptionBox">
   <option value="1">1</option>
   <option value="2">2</option>
   <option value="3" selected>3</option>
@@ -92,7 +92,7 @@ template.innerHTML =
     
       }
       .keyboard {
-        height: 100px;
+        height: 150px;
         padding: 10px;
         margin: 20px;
         margin-top: -120px;
@@ -120,6 +120,7 @@ template.innerHTML =
         -ms-user-select: none;
         box-shadow:0 0 10px rgba(0,0,0,0.5) inset
         background: transparent;
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
       }
       
       .key div {
@@ -136,13 +137,12 @@ template.innerHTML =
       }
       
       .key:active {
-        background-color: #599;
-        color: #fff;
+        background:linear-gradient(45deg, #599 30%, #0c618f 100%);
       }
 
 
       .octaveControl {
-        margin-top: 10px;
+        margin-top: 20px;
       }
       
       .octave {
@@ -153,6 +153,7 @@ template.innerHTML =
       
       .right {
         margin-top: 10px;
+        margin-bottom: 10px;
         text-align: left;
       }
 
@@ -164,8 +165,6 @@ template.innerHTML =
       .sharpKey {
         cursor: pointer;
         font: 10px "Open Sans", "Lucida Grande", "Arial", sans-serif;
-        border: 1px solid black;
-        border-radius: 5px;
         width: 10px;
         height: 75px;
         padding: 10px;
@@ -173,23 +172,20 @@ template.innerHTML =
         display: inline-block;
         position: relative;
         margin-bottom: -300px;
-        margin-top: 0px;
         user-select: none;
         -moz-user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
         background-color: white;
-        color: #599;
+        color: white;
         margin-left: 25px;
         top: 26px;
-        border: 2px solid white;
-        border-radius:0 0 3px 3px;
-
+        border: 2px solid #000;
+        box-shadow:-1px -1px 2px rgba(255,255,255,0.2) inset, 0 -5px 2px 3px rgba(0,0,0,0.6) inset, 0 2px 4px rgba(0,0,0,0.5);
+        background:linear-gradient(45deg, #222 0%,#555 100%);
       }
-      .sharpKey:active div{
-        color: white;
-        background-color: #599;
- 
+      .sharpKey:active{
+        background: linear-gradient(45deg, #599 0%,#555 100%);
       }
 
       #key1{
@@ -237,11 +233,6 @@ template.innerHTML =
         text-align: left;
       }
 
-      .lfoFreq{
-        text-align: left;
-        margin-top: 10px;
-      }
-
       .effect {
         display: table-cell;
         margin: 40px;
@@ -260,7 +251,7 @@ template.innerHTML =
       .modulationSection {
         float: left;
         margin-right: -30px;
-        margin-top: -150px;
+        margin-top: -130px;
         padding: 20px;
         font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
         position: relative;
@@ -271,7 +262,7 @@ template.innerHTML =
       .settingsBar {
         float: right;
         padding: 20px;
-        margin-top: -140px;
+        margin-top: -160px;
         margin-left: 10px;
         font: 10px "Avenir", "Lucida Grande", "Arial", sans-serif;
         position: relative;
@@ -292,6 +283,53 @@ template.innerHTML =
         margin-bottom: 10px;
         margin-left: 90px;
       }
+
+      input[type=range] {
+        outline: none;
+        -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+        background: transparent; /* Otherwise white in Chrome */
+      }
+
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        border: 1px solid #000000;
+        height: 10px;
+        width: 3px;
+        border-radius: 3px;
+        background: #ffffff;
+        cursor: pointer;
+        box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+      }
+
+      input[type=range]::-webkit-slider-runnable-track {
+        cursor: pointer;
+        margin: 1px;
+        margin-right: 3px;
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+        background: transparent;
+        border: 2px solid white;
+      }
+
+     
+      select {
+        outline: none;
+        position: relative;
+        background: transparent;
+        border-radius: 0px;
+        border: 2px solid white;
+        color: white;
+        margin-left: 1px;
+        margin-right: 5px;
+      }
+
+      select-items div, select-selected {
+        color: #ffffff;
+        padding: 8px 16px;
+        border: 1px solid transparent;
+        border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+        cursor: pointer;
+      }
+
     </style>
 </div>
 `
